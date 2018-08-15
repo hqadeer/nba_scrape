@@ -1,2 +1,3 @@
 *.txt
 ghostdriver.log
+nba/__pycache__
