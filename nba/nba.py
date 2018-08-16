@@ -1,14 +1,14 @@
-from helpers import get_page
-from player import Player
+from helpers import get_players
+#from entities import Player
 
 class NBA:
 
 
     def __init__(self):
 
-
-        page = get_page('http://stats.nba.com/players/list/?Historic=Y')
-
+        print("starting")
+        page = get_players('http://stats.nba.com/players/list/?Historic=Y')
+        print("done")
         self.players = {}
         for player in page.find_all("li", class_="players-list__name"):
             id = int(str(player.a['href']).split('/')[2].split('/')[0])
