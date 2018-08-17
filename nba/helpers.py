@@ -1,6 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-
+import csv
 import traceback
 
 def get_players(link):
@@ -10,6 +10,7 @@ def get_players(link):
     driver.get(str(link))
     soup = BeautifulSoup(driver.page_source, features='lxml')
     driver.close()
+    driver.quit()
     return soup
 
 def get_player(link):
@@ -21,4 +22,35 @@ def get_player(link):
     html = driver.find_element_by_tag_name("table").get_attribute("innerHTML")
     soup = BeautifulSoup(html, features='lxml')
     driver.close()
+    driver.quit()
     return soup
+
+def scrape_active_player(page, file_name):
+    with open(file_name, 'w', newline='') as f:
+        player_writer = csv.writer(f)
+        stats = []
+        for statistic in page.find_all("th"):
+            file_string = str(statistic).split('>')[1].split('<')[0]
+            stats.append(file_string)
+        player_writer.writerow(stats)
+        values = []
+        for statistic in page.find_all("td"):
+            if "class" in statistic.attrs:
+                if "first" or "player" in statistic["class"]:
+                    if len(values) > 0:
+                        player_writer.writerow(values)
+                    values = []
+                    values.append(str(statistic)
+                        .split('>')[1].split(' <')[0])
+                elif "text" in statistic["class"]:
+                    if statistic.a == None:
+                        values.append(str(statistic).
+                            split('>')[1].split('<')[0])
+                    else:
+                        values.append(str(statistic.a).
+                            split('>')[1].split('<')[0])
+            else:
+                values.append((str(statistic).
+                    split('>')[1].split('<')[0]))
+
+#def scrape_retired_player(page, file_name):

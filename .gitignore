@@ -1,3 +1,6 @@
 *.txt
+*.csv
 ghostdriver.log
 nba/__pycache__
+!nba/data/info.txt
+**/.DS_Store
