@@ -52,4 +52,4 @@ class NBA:
 
 if __name__ == "__main__":
     scraper = NBA()
-    print (scraper.players['lebron james'])
+    temp = Player(scraper.players['kareem abdul-jabbar'])

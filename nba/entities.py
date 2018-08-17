@@ -17,8 +17,11 @@ class Player:
                     if exc.errno != errno.EEXIST:
                         raise
             page = helpers.get_player(url)
-            helpers.scrape_active_player(page, self.file_name)
+            if page.tfoot is None:
+                helpers.scrape_active_player(page, self.file_name)
+            else:
+                helpers.scrape_retired_player(page, self.file_name)
 
 
 if __name__ == "__main__":
-    bruss = Player(78049)
+    lebron = Player(78049)
