@@ -2,6 +2,7 @@ from helpers import get_players
 from entities import Player
 import os
 import csv
+import time
 
 class NBA:
 
@@ -52,4 +53,6 @@ class NBA:
 
 if __name__ == "__main__":
     scraper = NBA()
-    temp = Player(scraper.players['kareem abdul-jabbar'])
+    begin = time.time()
+    temp = Player(scraper.players['michael jordan'])
+    print (time.time() - begin)

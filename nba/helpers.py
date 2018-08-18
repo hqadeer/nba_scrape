@@ -52,6 +52,8 @@ def scrape_active_player(page, file_name):
             else:
                 values.append((str(statistic).
                     split('>')[1].split('<')[0]))
+        if len(values) > 0:
+            player_writer.writerow(values)
 
 def scrape_retired_player(page, file_name):
     with open(file_name, 'w', newline='') as f:
@@ -80,7 +82,8 @@ def scrape_retired_player(page, file_name):
             else:
                 values.append((str(statistic).
                     split('>')[1].split('<')[0]))
-        player_writer.writerow(values)
+        if len(values) > 0:
+            player_writer.writerow(values)
         values = []
         for total in page.tfoot.find_all("td"):
             #if "class" in total.attrs and "text" in total["class"]:

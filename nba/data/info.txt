@@ -1,0 +1,1 @@
+[All player/team data is stored in this directory.]
