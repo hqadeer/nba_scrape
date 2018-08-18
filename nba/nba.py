@@ -54,5 +54,5 @@ class NBA:
 if __name__ == "__main__":
     scraper = NBA()
     begin = time.time()
-    temp = Player(scraper.players['lebron james'])
+    temp = Player(scraper.players['kevin durant'])
     print (time.time() - begin)

@@ -42,6 +42,9 @@ def get_player(link, mode="both"):
     elif mode == "both":
         return [soup, psoup]
 
+def is_active(player):
+    return (player.tfoot is None)
+
 def scrape_active_player(page, file_name):
     with open(file_name, 'w', newline='') as f:
         player_writer = csv.writer(f)
