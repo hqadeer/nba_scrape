@@ -13,17 +13,34 @@ def get_players(link):
     driver.quit()
     return soup
 
-def get_player(link):
+def get_player(link, mode="both"):
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument("user-agent=NBA")
     driver = webdriver.Chrome(chrome_options=options)
     driver.get(str(link))
-    html = driver.find_element_by_tag_name("table").get_attribute("innerHTML")
-    soup = BeautifulSoup(html, features='lxml')
+    if mode == "season":
+        html = (driver.find_element_by_tag_name("table").
+            get_attribute('innerHTML'))
+        driver.close()
+        driver.quit()
+        return [(BeautifulSoup(html, features='lxml'))]
+    htmls = (driver.find_elements_by_tag_name("table"))
+    soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'), features='lxml')
+    if soup.tfoot is None:
+        driver.get(str(link) + "?Season=2017-18&SeasonType=Playoffs")
+        phtml = (driver.find_element_by_tag_name("table").
+            get_attribute('innerHTML'))
+        psoup = BeautifulSoup(phtml, features='lxml')
+    else:
+        psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
+            features='lxml')
     driver.close()
     driver.quit()
-    return soup
+    if mode == "playoffs":
+        return [psoup]
+    elif mode == "both":
+        return [soup, psoup]
 
 def scrape_active_player(page, file_name):
     with open(file_name, 'w', newline='') as f:

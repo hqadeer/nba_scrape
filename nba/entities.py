@@ -7,28 +7,42 @@ class Player:
 
     def __init__(self, id):
 
-        season_url = "".join(["http://stats.nba.com/player/", str(id),
-            '/'])
         self.season_filename = "".join(['nba/data/players/season/',
             str(id), '.csv'])
-        playoffs_url = season_url + "?Season=2017-18&SeasonType=Playoffs"
         self.playoffs_filename = "".join(['nba/data/players/playoffs/',
             str(id), '.csv'])
-        pair = [(season_url, self.season_filename),
-            (playoffs_url, self.playoffs_filename)]
-        for filetype in pair:
-            if not os.path.isfile(filetype[1]):
-                if not os.path.isdir(os.path.dirname(filetype[1])):
-                    try:
-                        os.makedirs(os.path.dirname(filetype[1]))
-                    except OSError as exc:
-                        if exc.errno != errno.EEXIST:
-                            raise
-                page = helpers.get_player(filetype[0])
-                if page.tfoot is None:
-                    helpers.scrape_active_player(page, filetype[1])
-                else:
-                    helpers.scrape_retired_player(page, filetype[1])
+        url = "".join(["http://stats.nba.com/player/", str(id), '/'])
+        files = [self.season_filename, self.playoffs_filename]
+        for file in files:
+            if not os.path.isdir(os.path.dirname(file)):
+                try:
+                    os.makedirs(os.path.dirname(file))
+                except OSError as exc:
+                    if exc.errno != errno.EEXIST:
+                        raise
+        if (not os.path.isfile(self.season_filename) and
+                not os.path.isfile(self.playoffs_filename)):
+            pages = helpers.get_player(url)
+            if pages[0].tfoot is None:
+                helpers.scrape_active_player(pages[0], self.season_filename)
+                helpers.scrape_active_player(pages[1], self.playoffs_filename)
+            else:
+                helpers.scrape_retired_player(pages[0], self.season_filename)
+                helpers.scrape_retired_player(pages[1], self.playoffs_filename)
+        elif not os.path.isfile(self.playoffs_filename):
+            pages = helper.get_player(url, mode="playoffs")
+            if pages[0].tfoot is None:
+                helpers.scrape_active_player(pages[0], self.playoffs_filename)
+            else:
+                helpers.scrape_retired_player(pages[0], self.playoffs_filename)
+        elif not os.path.isfile(self.season_filename):
+            pages = helper.get_player(url, mode="season")
+            if pages[0].tfoot is None:
+                helpers.scrape_active_player(pages[0], self.season_filename)
+            else:
+                helpers.scrape_retired_player(pages[0], self.season_filename)
+
+
 
 
 
