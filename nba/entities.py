@@ -1,6 +1,8 @@
 import os
 import errno
 import helpers
+import csv
+import time
 
 class Player:
 
@@ -41,10 +43,26 @@ class Player:
                 helpers.scrape_active_player(pages[0], self.season_filename)
             else:
                 helpers.scrape_retired_player(pages[0], self.season_filename)
+        self.season = {}
+        self.playoffs = {}
+        with open(self.season_filename, newline='') as f:
+            season_reader = csv.DictReader(f)
+            for row in season_reader:
+                self.season[row['By Year']] = row
+        with open(self.playoffs_filename, newline='') as f:
+            playoffs_reader = csv.DictReader(f)
+            for row in playoffs_reader:
+                self.playoffs[row['By Year']] = row
 
+    def get_stat(self, year, stat=None, playoffs=False):
+        if stat is None:
+            try:
+                year =
 
 
 
 
 if __name__ == "__main__":
-    lebron = Player(78049)
+    begin = time.time()
+    lebron = Player(2544)
+    print (time.time() - begin)

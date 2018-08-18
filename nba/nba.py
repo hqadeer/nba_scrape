@@ -2,7 +2,6 @@ from helpers import get_players
 from entities import Player
 import os
 import csv
-import time
 
 class NBA:
 
@@ -33,7 +32,8 @@ class NBA:
             for row in player_reader:
                 self.players[row[0]] = row[1]
 
-
+    def get_player(self, id):
+        return Player(id)
 
 
     def load_all_players(self):
@@ -54,5 +54,5 @@ class NBA:
 if __name__ == "__main__":
     scraper = NBA()
     begin = time.time()
-    temp = Player(scraper.players['kevin durant'])
+    temp = Player(scraper.players['kareem abdul-jabbar'])
     print (time.time() - begin)
