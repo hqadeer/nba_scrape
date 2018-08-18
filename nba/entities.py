@@ -55,9 +55,30 @@ class Player:
                 self.playoffs[row['By Year']] = row
 
     def get_stat(self, year, stat=None, playoffs=False):
-        if stat is None:
-            try:
-                year =
+        if playoffs == False:
+            if stat is None:
+                try:
+                    value = self.season[year]
+                except KeyError:
+                    return None
+            else:
+                try:
+                    value = float(self.season[year][str(stat).upper()])
+                except KeyError:
+                    return None
+        elif playoffs == True:
+            if stat is None:
+                try:
+                    value = self.playoffs[year]
+                except KeyError:
+                    return None
+            else:
+                try:
+                    value = float(self.playoffs[year][str(stat).upper()])
+                except KeyError:
+                    return None
+        if value not in (None, ""):
+            return value
 
 
 
@@ -65,4 +86,5 @@ class Player:
 if __name__ == "__main__":
     begin = time.time()
     lebron = Player(2544)
+    print(lebron.get_stat('2008-09', 'pts'))
     print (time.time() - begin)

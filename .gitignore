@@ -3,4 +3,5 @@
 ghostdriver.log
 nba/__pycache__
 !nba/data/info.txt
+!todo.txt
 **/.DS_Store

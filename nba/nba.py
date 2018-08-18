@@ -32,8 +32,8 @@ class NBA:
             for row in player_reader:
                 self.players[row[0]] = row[1]
 
-    def get_player(self, id):
-        return Player(id)
+    def get_player(self, name):
+        return Player(self.players[name])
 
 
     def load_all_players(self):
@@ -46,10 +46,6 @@ class NBA:
                 time.sleep(2)
                 temp = Player(self.players[key])
 
-
-
-
-    #ef get_player(self, id=None, name=None):
 
 if __name__ == "__main__":
     scraper = NBA()

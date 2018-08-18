@@ -4,6 +4,8 @@ import csv
 import traceback
 
 def get_players(link):
+
+
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     driver = webdriver.Chrome(chrome_options=options)
@@ -14,6 +16,8 @@ def get_players(link):
     return soup
 
 def get_player(link, mode="both"):
+
+
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument("user-agent=NBA")
@@ -43,9 +47,12 @@ def get_player(link, mode="both"):
         return [soup, psoup]
 
 def is_active(player):
+
     return (player.tfoot is None)
 
 def scrape_active_player(page, file_name):
+
+
     with open(file_name, 'w', newline='') as f:
         player_writer = csv.writer(f)
         stats = []
@@ -76,6 +83,8 @@ def scrape_active_player(page, file_name):
             player_writer.writerow(values)
 
 def scrape_retired_player(page, file_name):
+
+    
     with open(file_name, 'w', newline='') as f:
         player_writer = csv.writer(f)
         stats = []
