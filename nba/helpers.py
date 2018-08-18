@@ -1,7 +1,11 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import csv
 import traceback
+import time
 
 def get_players(link):
 
@@ -11,7 +15,6 @@ def get_players(link):
     driver = webdriver.Chrome(chrome_options=options)
     driver.get(str(link))
     soup = BeautifulSoup(driver.page_source, features='lxml')
-    driver.close()
     driver.quit()
     return soup
 
@@ -24,27 +27,36 @@ def get_player(link, mode="both"):
     driver = webdriver.Chrome(chrome_options=options)
     driver.get(str(link))
     if mode == "season":
-        html = (driver.find_element_by_tag_name("table").
-            get_attribute('innerHTML'))
-        driver.close()
-        driver.quit()
-        return [(BeautifulSoup(html, features='lxml'))]
-    htmls = (driver.find_elements_by_tag_name("table"))
-    soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'), features='lxml')
-    if soup.tfoot is None:
-        driver.get(str(link) + "?Season=2017-18&SeasonType=Playoffs")
-        phtml = (driver.find_element_by_tag_name("table").
-            get_attribute('innerHTML'))
-        psoup = BeautifulSoup(phtml, features='lxml')
-    else:
-        psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
+        try:
+            html = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "table"))
+            )
+            return [BeautifulSoup(html.get_attribute('innerHTML'),
+                features='lxml')]
+        finally:
+            driver.quit()
+    try:
+        htmls = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.TAG_NAME, "table"))
+        )
+        soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
             features='lxml')
-    driver.close()
-    driver.quit()
-    if mode == "playoffs":
-        return [psoup]
-    elif mode == "both":
-        return [soup, psoup]
+        if soup.tfoot is None:
+            driver.get(str(link) + "?Season=2017-18&SeasonType=Playoffs")
+            phtml = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "table"))
+            )
+            psoup = BeautifulSoup(phtml.get_attribute('innerHTML'),
+                features='lxml')
+        else:
+            psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
+                features='lxml')
+        if mode == "playoffs":
+            return [psoup]
+        elif mode == "both":
+            return [soup, psoup]
+    finally:
+        driver.quit()
 
 def is_active(player):
 
@@ -84,7 +96,7 @@ def scrape_active_player(page, file_name):
 
 def scrape_retired_player(page, file_name):
 
-    
+
     with open(file_name, 'w', newline='') as f:
         player_writer = csv.writer(f)
         stats = []
@@ -115,6 +127,5 @@ def scrape_retired_player(page, file_name):
             player_writer.writerow(values)
         values = []
         for total in page.tfoot.find_all("td"):
-            #if "class" in total.attrs and "text" in total["class"]:
             values.append(str(total).split('>')[1].split('<')[0])
         player_writer.writerow(values)

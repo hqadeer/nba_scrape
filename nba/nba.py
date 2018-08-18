@@ -49,6 +49,4 @@ class NBA:
 
 if __name__ == "__main__":
     scraper = NBA()
-    begin = time.time()
-    temp = Player(scraper.players['kareem abdul-jabbar'])
-    print (time.time() - begin)
+    temp = Player(scraper.players['dwight howard'])
