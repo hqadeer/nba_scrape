@@ -28,7 +28,7 @@ class Player:
             helpers.scrape_player(pages[0], self.season_filename)
             helpers.scrape_player(pages[1], self.playoffs_filename)
         elif not os.path.isfile(self.playoffs_filename):
-            pages = helper.get_player(url, mode="playoffs")
+            pages = helpers.get_player(url, mode="playoffs")
             helpers.scrape_player(pages[0], self.playoffs_filename)
         elif not os.path.isfile(self.season_filename):
             pages = helper.get_player(url, mode="season")
@@ -38,14 +38,14 @@ class Player:
         with open(self.season_filename, newline='') as f:
             season_reader = csv.DictReader(f)
             for row in season_reader:
-                row['TS%'] = float(row['PTS']) / (2 *
+                row['TS%'] = float(row['PTS']) / (.02 *
                     (float(row['FGA']) + 0.44 * float(row['FTA'])))
                 self.season[row['Season']] = row
         self.season['career'] = self.season.pop('Overall: ')
         with open(self.playoffs_filename, newline='') as f:
             playoffs_reader = csv.DictReader(f)
             for row in playoffs_reader:
-                row['TS%'] = float(row['PTS']) / (2 *
+                row['TS%'] = float(row['PTS']) / (.02 *
                     (float(row['FGA']) + 0.44 * float(row['FTA'])))
                 self.playoffs[row['Season']] = row
         self.playoffs['career'] = self.playoffs.pop('Overall: ')
@@ -80,5 +80,5 @@ class Player:
 
 
 if __name__ == "__main__":
-    lbj = Player(893)
-    print(lbj.get_stat('1956-57', 'ts%'))
+    lbj = Player(2544)
+    print(lbj.get_stat('2016-17', 'ts%'))

@@ -84,10 +84,12 @@ def get_players(link):
     if browser == "chrome":
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument('user-agent=Kobe')
         driver = webdriver.Chrome(chrome_options=options)
     elif browser == "firefox":
         options = webdriver.FirefoxOptions()
         options.add_argument('headless')
+        options.add_argument('user-agent=Kobe')
         driver = webdriver.Firefox(firefox_options=options)
     elif browser == "PhantomJS":
         driver = webdriver.PhantomJS()
@@ -112,10 +114,12 @@ def get_player(link, mode="both"):
     if browser == "chrome":
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument('user-agent=Kobe')
         driver = webdriver.Chrome(chrome_options=options)
     elif browser == "firefox":
         options = webdriver.FirefoxOptions()
         options.add_argument('headless')
+        options.add_argument('user-agent=Kobe')
         driver = webdriver.Firefox(firefox_options=options)
     elif browser == "PhantomJS":
         driver = webdriver.PhantomJS()
@@ -144,7 +148,7 @@ def get_player(link, mode="both"):
         soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
             features='lxml')
         psoup = soup
-        psoup = BeautifulSoup(htmls[1].get_attribute('innerHTML'),
+        psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
                 features='lxml')
         if mode == "playoffs":
             return [psoup]
