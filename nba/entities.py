@@ -9,9 +9,9 @@ class Player:
 
     def __init__(self, id):
 
-        self.season_filename = "".join(['nba/data/players/season/',
+        self.season_filename = "".join(['data/players/season/',
             str(id), '.csv'])
-        self.playoffs_filename = "".join(['nba/data/players/playoffs/',
+        self.playoffs_filename = "".join(['data/players/playoffs/',
             str(id), '.csv'])
         url = "".join(["http://stats.nba.com/player/", str(id), '/career'])
         files = [self.season_filename, self.playoffs_filename]
@@ -80,5 +80,5 @@ class Player:
 
 
 if __name__ == "__main__":
-    lbj = Player(78049)
+    lbj = Player(893)
     print(lbj.get_stat('1956-57', 'ts%'))

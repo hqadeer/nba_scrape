@@ -13,6 +13,8 @@ browser = "chrome"
 def detect_browser():
 
 
+    global browser
+
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
@@ -30,7 +32,6 @@ def detect_browser():
     except (selexc.WebDriverException, FileNotFoundError) as exc:
         pass
     else:
-        global browser
         browser = "firefox"
         driver.quit()
         return
@@ -40,7 +41,6 @@ def detect_browser():
     except (selexc.WebDriverException, FileNotFoundError) as exc:
         pass
     else:
-        global browser
         browser = "PhantomJS"
         print("Using PhantomJS, which is an unsupported browser.",
             "Consider installing Chrome or Firefox.", file=sys.stderr)
@@ -52,7 +52,6 @@ def detect_browser():
     except (selexc.WebDriverException, FileNotFoundError) as exc:
         pass
     else:
-        global browser
         browser = "opera"
         print("Using Opera. Opera does not support headless mode, so",
             "consider installing Chrome or Firefox.", file=sys.stderr)
@@ -68,7 +67,6 @@ def detect_browser():
             "support headless mode, so consider installing Chrome or Firefox",
             file=sys.stderr)
     else:
-        global browser
         browser = "safari"
         print("Using Safari. Safari does not support headless mode, so",
             "consider installing Chrome or Firefox.", file=sys.stderr)
@@ -80,8 +78,9 @@ def detect_browser():
 
 def get_players(link):
 
-    
+
     global browser
+
     if browser == "chrome":
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
@@ -107,10 +106,27 @@ def get_players(link):
 def get_player(link, mode="both"):
 
 
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    options.add_argument("user-agent=NBA")
-    driver = webdriver.Chrome(chrome_options=options)
+    global browser
+
+    print(browser)
+    if browser == "chrome":
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        driver = webdriver.Chrome(chrome_options=options)
+    elif browser == "firefox":
+        options = webdriver.FirefoxOptions()
+        options.add_argument('headless')
+        driver = webdriver.Firefox(firefox_options=options)
+    elif browser == "PhantomJS":
+        driver = webdriver.PhantomJS()
+    elif browser == "opera":
+        driver = webdriver.Opera()
+    elif browser == "safari":
+        driver = webdriver.Safari()
+    else:
+        print("No browser found.", file=sys.stderr)
+        raise
+
     driver.get(str(link))
     if mode == "season":
         try:
@@ -127,7 +143,8 @@ def get_player(link, mode="both"):
         )
         soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
             features='lxml')
-        psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
+        psoup = soup
+        psoup = BeautifulSoup(htmls[1].get_attribute('innerHTML'),
                 features='lxml')
         if mode == "playoffs":
             return [psoup]
