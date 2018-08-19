@@ -1,23 +1,89 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import selenium.common.exceptions as selexc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import csv
 import traceback
-import time
+import sys
 
-#def setup():
+browser = "chrome"
+
+def detect_browser():
 
 
+    try:
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        driver = webdriver.Chrome()
+    except (selexc.WebDriverException, FileNotFoundError) as exc:
+        pass
+    else:
+        driver.quit()
+        return
 
+    try:
+        options = webdriver.FirefoxOptions()
+        options.add_argument('headless')
+        driver = webdriver.Firefox()
+    except (selexc.WebDriverException, FileNotFoundError) as exc:
+        pass
+    else:
+        driver.quit()
+        return
+
+    try:
+        driver = webdriver.PhantomJS()
+    except (selexc.WebDriverException, FileNotFoundError) as exc:
+        pass
+    else:
+        print("Using PhantomJS, which is an unsupported browser.",
+            "Consider installing Chrome or Firefox.", file=sys.stderr)
+        driver.quit()
+        return
+
+    try:
+        driver = webdriver.Safari()
+    except (selexc.WebDriverException, FileNotFoundError) as exc:
+        pass
+    except selexc.SessionNotCreatedException:
+        print("To use Safari for scraping, enable 'Allow Remote",
+            "Automation' option in Safari's Develop menu. Safari does not",
+            "support headless mode, so consider installing Chrome or Firefox",
+            file=sys.stderr)
+    else:
+        print("Using Safari. Safari does not support headless mode, so",
+            "consider installing Chrome or Firefox.", file=sys.stderr)
+        return
+
+    try:
+        driver = webdriver.Opera()
+    except (selexc.WebDriverException, FileNotFoundError) as exc:
+        pass
+    else:
+        print("Using Opera. Opera does not support headless mode, so",
+            "consider installing Chrome or Firefox.", file=sys.stderr)
+        return
+
+    print("No supported browsers found. Install Chrome or Firefox for",
+        "optimal usage.", fle=sys.stderr)
+    raise
 
 def get_players(link):
 
-
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    driver = webdriver.Chrome(chrome_options=options)
+    #try:
+        #options = webdriver.ChromeOptions()
+        #options.add_argument('headless')
+        #driver = webdriver.Chrome(chrome_options=options)
+    try:
+        options = webdriver.FirefoxOptions()
+        options.add_argument('headless')
+        driver = webdriver.Firefox(firefox_options=options)
+    except (WebDriverException, FileNotFoundError) as exc:
+        driver = webdriver.PhantomJS()
+        print("Using unstable browser for scraping. Consider installing",
+            "Chrome or Firefox", file=sys.stderr)
     driver.get(str(link))
     soup = BeautifulSoup(driver.page_source, features='lxml')
     driver.quit()

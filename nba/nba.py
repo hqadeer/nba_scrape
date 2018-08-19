@@ -8,7 +8,7 @@ class NBA:
 
 
     def __init__(self):
-        helpers.setup()
+        #helpers.setup()
         file_name = "nba/data/players.csv"
         if not os.path.isfile(file_name):
             if not os.path.isdir(os.path.dirname(file_name)):
@@ -51,4 +51,4 @@ class NBA:
 
 if __name__ == "__main__":
     scraper = NBA()
-    temp = Player(scraper.players['dwight howard'])
+    #temp = Player(scraper.players['dwight howard'])
