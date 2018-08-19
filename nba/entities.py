@@ -13,7 +13,7 @@ class Player:
             str(id), '.csv'])
         self.playoffs_filename = "".join(['nba/data/players/playoffs/',
             str(id), '.csv'])
-        url = "".join(["http://stats.nba.com/player/", str(id), '/'])
+        url = "".join(["http://stats.nba.com/player/", str(id), '/career'])
         files = [self.season_filename, self.playoffs_filename]
         for file in files:
             if not os.path.isdir(os.path.dirname(file)):
@@ -25,34 +25,30 @@ class Player:
         if (not os.path.isfile(self.season_filename) and
                 not os.path.isfile(self.playoffs_filename)):
             pages = helpers.get_player(url)
-            if helpers.is_active(pages[0]):
-                helpers.scrape_active_player(pages[0], self.season_filename)
-                helpers.scrape_active_player(pages[1], self.playoffs_filename)
-            else:
-                helpers.scrape_retired_player(pages[0], self.season_filename)
-                helpers.scrape_retired_player(pages[1], self.playoffs_filename)
+            helpers.scrape_player(pages[0], self.season_filename)
+            helpers.scrape_player(pages[1], self.playoffs_filename)
         elif not os.path.isfile(self.playoffs_filename):
             pages = helper.get_player(url, mode="playoffs")
-            if helpers.is_active(pages[0]):
-                helpers.scrape_active_player(pages[0], self.playoffs_filename)
-            else:
-                helpers.scrape_retired_player(pages[0], self.playoffs_filename)
+            helpers.scrape_player(pages[0], self.playoffs_filename)
         elif not os.path.isfile(self.season_filename):
             pages = helper.get_player(url, mode="season")
-            if helpers.is_active(pages[0]):
-                helpers.scrape_active_player(pages[0], self.season_filename)
-            else:
-                helpers.scrape_retired_player(pages[0], self.season_filename)
+            helpers.scrape_player(pages[0], self.season_filename)
         self.season = {}
         self.playoffs = {}
         with open(self.season_filename, newline='') as f:
             season_reader = csv.DictReader(f)
             for row in season_reader:
-                self.season[row['By Year']] = row
+                row['TS%'] = float(row['PTS']) / (2 *
+                    (float(row['FGA']) + 0.44 * float(row['FTA'])))
+                self.season[row['Season']] = row
+        self.season['career'] = self.season.pop('Overall: ')
         with open(self.playoffs_filename, newline='') as f:
             playoffs_reader = csv.DictReader(f)
             for row in playoffs_reader:
-                self.playoffs[row['By Year']] = row
+                row['TS%'] = float(row['PTS']) / (2 *
+                    (float(row['FGA']) + 0.44 * float(row['FTA'])))
+                self.playoffs[row['Season']] = row
+        self.playoffs['career'] = self.playoffs.pop('Overall: ')
 
     def get_stat(self, year, stat=None, playoffs=False):
         if playoffs == False:
@@ -84,7 +80,5 @@ class Player:
 
 
 if __name__ == "__main__":
-    begin = time.time()
-    lebron = Player(2544)
-    print(lebron.get_stat('2008-09', 'pts'))
-    print (time.time() - begin)
+    lbj = Player(78049)
+    print(lbj.get_stat('1956-57', 'ts%'))

@@ -2,11 +2,13 @@ from helpers import get_players
 from entities import Player
 import os
 import csv
+import helpers
 
 class NBA:
 
 
     def __init__(self):
+        helpers.setup()
         file_name = "nba/data/players.csv"
         if not os.path.isfile(file_name):
             if not os.path.isdir(os.path.dirname(file_name)):

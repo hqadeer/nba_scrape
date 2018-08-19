@@ -7,6 +7,11 @@ import csv
 import traceback
 import time
 
+#def setup():
+
+
+
+
 def get_players(link):
 
 
@@ -41,15 +46,7 @@ def get_player(link, mode="both"):
         )
         soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
             features='lxml')
-        if soup.tfoot is None:
-            driver.get(str(link) + "?Season=2017-18&SeasonType=Playoffs")
-            phtml = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "table"))
-            )
-            psoup = BeautifulSoup(phtml.get_attribute('innerHTML'),
-                features='lxml')
-        else:
-            psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
+        psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
                 features='lxml')
         if mode == "playoffs":
             return [psoup]
@@ -58,43 +55,7 @@ def get_player(link, mode="both"):
     finally:
         driver.quit()
 
-def is_active(player):
-
-    return (player.tfoot is None)
-
-def scrape_active_player(page, file_name):
-
-
-    with open(file_name, 'w', newline='') as f:
-        player_writer = csv.writer(f)
-        stats = []
-        for statistic in page.find_all("th"):
-            file_string = str(statistic).split('>')[1].split('<')[0]
-            stats.append(file_string)
-        player_writer.writerow(stats)
-        values = []
-        for statistic in page.find_all("td"):
-            if "class" in statistic.attrs:
-                if "first" in statistic["class"]:
-                    if len(values) > 0:
-                        player_writer.writerow(values)
-                    values = []
-                    values.append(str(statistic)
-                        .split('>')[1].split(' <')[0])
-                elif "text" in statistic["class"]:
-                    if statistic.a == None:
-                        values.append(str(statistic).
-                            split('>')[1].split('<')[0])
-                    else:
-                        values.append(str(statistic.a).
-                            split('>')[1].split('<')[0])
-            else:
-                values.append((str(statistic).
-                    split('>')[1].split('<')[0]))
-        if len(values) > 0:
-            player_writer.writerow(values)
-
-def scrape_retired_player(page, file_name):
+def scrape_player(page, file_name):
 
 
     with open(file_name, 'w', newline='') as f:
