@@ -30,6 +30,8 @@ def detect_browser():
     except (selexc.WebDriverException, FileNotFoundError) as exc:
         pass
     else:
+        global browser
+        browser = "firefox"
         driver.quit()
         return
 
@@ -38,9 +40,22 @@ def detect_browser():
     except (selexc.WebDriverException, FileNotFoundError) as exc:
         pass
     else:
+        global browser
+        browser = "PhantomJS"
         print("Using PhantomJS, which is an unsupported browser.",
             "Consider installing Chrome or Firefox.", file=sys.stderr)
         driver.quit()
+        return
+
+    try:
+        driver = webdriver.Opera()
+    except (selexc.WebDriverException, FileNotFoundError) as exc:
+        pass
+    else:
+        global browser
+        browser = "opera"
+        print("Using Opera. Opera does not support headless mode, so",
+            "consider installing Chrome or Firefox.", file=sys.stderr)
         return
 
     try:
@@ -53,37 +68,37 @@ def detect_browser():
             "support headless mode, so consider installing Chrome or Firefox",
             file=sys.stderr)
     else:
+        global browser
+        browser = "safari"
         print("Using Safari. Safari does not support headless mode, so",
             "consider installing Chrome or Firefox.", file=sys.stderr)
         return
 
-    try:
-        driver = webdriver.Opera()
-    except (selexc.WebDriverException, FileNotFoundError) as exc:
-        pass
-    else:
-        print("Using Opera. Opera does not support headless mode, so",
-            "consider installing Chrome or Firefox.", file=sys.stderr)
-        return
-
     print("No supported browsers found. Install Chrome or Firefox for",
-        "optimal usage.", fle=sys.stderr)
+        "optimal usage.", file=sys.stderr)
     raise
 
 def get_players(link):
 
-    #try:
-        #options = webdriver.ChromeOptions()
-        #options.add_argument('headless')
-        #driver = webdriver.Chrome(chrome_options=options)
-    try:
+    
+    global browser
+    if browser == "chrome":
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        driver = webdriver.Chrome(chrome_options=options)
+    elif browser == "firefox":
         options = webdriver.FirefoxOptions()
         options.add_argument('headless')
         driver = webdriver.Firefox(firefox_options=options)
-    except (WebDriverException, FileNotFoundError) as exc:
+    elif browser == "PhantomJS":
         driver = webdriver.PhantomJS()
-        print("Using unstable browser for scraping. Consider installing",
-            "Chrome or Firefox", file=sys.stderr)
+    elif browser == "opera":
+        driver = webdriver.Opera()
+    elif browser == "safari":
+        driver = webdriver.Safari()
+    else:
+        print("No browser found.", file=sys.stderr)
+        raise
     driver.get(str(link))
     soup = BeautifulSoup(driver.page_source, features='lxml')
     driver.quit()
