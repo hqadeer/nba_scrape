@@ -166,13 +166,11 @@ def scrape_player_trad(page, id, playoffs=False):
 
     db = sqlite3.connect('data.db')
     player_writer = db.cursor()
-    name = 'trad' + str(id)
+    name = 'p' + str(id)
 
     try:
         player_writer.execute('''CREATE TABLE %s(playoffs INTEGER)''' % name)
-        db.commit()
     except sqlite3.OperationalError:
-        print("going through")
         pass
     else:
         for statistic in page.find_all("th"):

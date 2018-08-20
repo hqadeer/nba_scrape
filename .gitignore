@@ -6,3 +6,4 @@ nba/__pycache__
 !todo.txt
 **/.DS_Store
 geckodriver.log
+**/data.db

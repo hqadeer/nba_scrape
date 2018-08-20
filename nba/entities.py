@@ -7,7 +7,7 @@ import sqlite3
 
 class Player:
 
-    def __init__(self, id, mode="both", type="trad"):
+    def __init__(self, id, type="trad"):
 
         self.id = id
         db = sqlite3.connect('data.db')
@@ -18,26 +18,8 @@ class Player:
             return
         url = "".join(["http://stats.nba.com/player/", str(id), '/career'])
         pages = helpers.get_player_trad(url)
-        if mode in ["both", "season"]:
-            helpers.scrape_player_trad(pages[0], id, False)
-        if mode in ["both", "playoffs"]:
-            helpers.scrape_player_trad(pages[1], id, True)
-        self.season = {}
-        self.playoffs = {}
-        with open(self.season_filename, newline='') as f:
-            season_reader = csv.DictReader(f)
-            for row in season_reader:
-                row['TS%'] = float(row['PTS']) / (.02 *
-                    (float(row['FGA']) + 0.44 * float(row['FTA'])))
-                self.season[row['Season']] = row
-        self.season['career'] = self.season.pop('Overall: ')
-        with open(self.playoffs_filename, newline='') as f:
-            playoffs_reader = csv.DictReader(f)
-            for row in playoffs_reader:
-                row['TS%'] = float(row['PTS']) / (.02 *
-                    (float(row['FGA']) + 0.44 * float(row['FTA'])))
-                self.playoffs[row['Season']] = row
-        self.playoffs['career'] = self.playoffs.pop('Overall: ')
+        helpers.scrape_player_trad(pages[0], id, False)
+        helpers.scrape_player_trad(pages[1], id, True)
 
 
     def get_stat(self, year='career', stat=None, playoffs=False):
