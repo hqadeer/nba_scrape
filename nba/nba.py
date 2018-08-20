@@ -3,14 +3,15 @@ from entities import Player
 import os
 import csv
 import helpers
+import sqlite3
 
 class NBA:
 
 
     def __init__(self):
         #helpers.setup()
-        file_name = "nba/data/players.csv"
-        if not os.path.isfile(file_name):
+        file_name = "data.db"
+        if os.path.isfile(file_name):
             if not os.path.isdir(os.path.dirname(file_name)):
                 try:
                     os.makedirs(os.path.dirname(file_name))
@@ -18,16 +19,16 @@ class NBA:
                     if exc.errno != errno.EEXIST:
                         raise
             page = get_players('http://stats.nba.com/players/list/?Historic=Y')
-            with open(file_name, 'w', newline='') as f:
-                player_writer = csv.writer(f)
-                for player in page.find_all("li", class_="players-list__name"):
-                    id = str(player.a['href']).split('/')[2].split('/')[0]
-                    name_comps = player.a.string.split(', ')
-                    if len(name_comps) == 2:
-                        name = (' '.join([name_comps[1], name_comps[0]])).lower()
-                    else:
-                        name = name_comps[0].lower()
-                    player_writer.writerow([name, id])
+            db = sqlite3.connect('data.db')
+            cursor = db.cursor()
+            for player in page.find_all("li", class_="players-list__name"):
+                id = str(player.a['href']).split('/')[2].split('/')[0]
+                name_comps = player.a.string.split(', ')
+                if len(name_comps) == 2:
+                    name = (' '.join([name_comps[1], name_comps[0]])).lower()
+                else:
+                    name = name_comps[0].lower()
+                player_writer.writerow([name, id])
         self.players = {}
         with open(file_name, newline='') as f:
             player_reader = csv.reader(f)

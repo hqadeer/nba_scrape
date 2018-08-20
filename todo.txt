@@ -3,5 +3,4 @@ Tests
 Exception handling / PEP-8
 More advanced stats
 Team stats
-Make library computer-agnostic (Chrome, files, etc.)
 Database support

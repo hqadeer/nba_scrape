@@ -4,6 +4,7 @@ import selenium.common.exceptions as selexc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import sqlite3
 import csv
 import traceback
 import sys
@@ -105,12 +106,11 @@ def get_players(link):
     driver.quit()
     return soup
 
-def get_player(link, mode="both"):
+def get_player_trad(link, mode="both"):
 
 
     global browser
 
-    print(browser)
     if browser == "chrome":
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
@@ -157,38 +157,71 @@ def get_player(link, mode="both"):
     finally:
         driver.quit()
 
-def scrape_player(page, file_name):
+def scrape_player_trad(page, id, playoffs=False):
 
+    if playoffs == False:
+        pcheck = 0
+    else:
+        pcheck = 1
 
-    with open(file_name, 'w', newline='') as f:
-        player_writer = csv.writer(f)
-        stats = []
+    db = sqlite3.connect('data.db')
+    player_writer = db.cursor()
+    name = 'trad' + str(id)
+
+    try:
+        player_writer.execute('''CREATE TABLE %s(playoffs INTEGER)''' % name)
+        db.commit()
+    except sqlite3.OperationalError:
+        print("going through")
+        pass
+    else:
         for statistic in page.find_all("th"):
             if "class" in statistic.attrs and "text" in statistic["class"]:
                 tag = statistic.span
             else:
                 tag = statistic
             file_string = str(tag).split('>')[1].split('<')[0]
-            stats.append(file_string)
-        player_writer.writerow(stats)
-        values = []
-        for statistic in page.tbody.find_all("td"):
-            if "class" in statistic.attrs:
-                if "player" in statistic["class"]:
-                    if len(values) > 0:
-                        player_writer.writerow(values)
-                    values = []
-                    values.append(str(statistic.a['href']).split('=')[1].
-                        split('&')[0])
-                elif "text" in statistic["class"]:
-                    values.append(str(statistic.span).split('>')[1].
-                        split('<')[0])
+            if file_string in ["Season", "TEAM"]:
+                print(file_string)
+                player_writer.execute('''ALTER TABLE %s ADD %s
+                    TEXT''' % (name, file_string))
             else:
-                values.append((str(statistic).
-                    split('>')[1].split('<')[0]))
-        if len(values) > 0:
-            player_writer.writerow(values)
-        values = []
-        for total in page.tfoot.find_all("td"):
-            values.append(str(total).split('>')[1].split('<')[0])
-        player_writer.writerow(values)
+                if '%' in file_string:
+                    file_string = file_string.replace("%", "P")
+                if '3' in file_string:
+                    file_string = file_string.replace("3", "three")
+                print(file_string)
+                player_writer.execute('''ALTER TABLE %s ADD %s
+                    NUMERIC''' % (name, file_string))
+    db.commit()
+
+    values = []
+    entries = []
+    for statistic in page.tbody.find_all("td"):
+        if "class" in statistic.attrs:
+            if "player" in statistic["class"]:
+                if len(values) > 0:
+                    entries.append(tuple(values))
+                values = [pcheck]
+                values.append(str(statistic.a['href']).split('=')[1].
+                    split('&')[0])
+            elif "text" in statistic["class"]:
+                values.append(str(statistic.span).split('>')[1].
+                    split('<')[0])
+        else:
+            values.append(float(str(statistic).
+                split('>')[1].split('<')[0]))
+    if len(values) > 0:
+        entries.append(tuple(values))
+    values = [pcheck]
+    for total in page.tfoot.find_all("td"):
+        value = str(total).split('>')[1].split('<')[0]
+        if value in ["", "-"]:
+            value = None
+        values.append(value)
+
+    entries.append(tuple(values))
+    place = ', '.join('?' * len(values))
+    player_writer.executemany('''INSERT INTO %s values (%s)''' %
+        (name, place), entries)
+    db.commit()
