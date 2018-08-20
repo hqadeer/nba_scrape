@@ -1,6 +1,6 @@
 TODO:
 Tests
 Exception handling / PEP-8
-More advanced stats
-Team stats
-Database support
+More advanced stats - add to player's database
+Database support - support queries, lazy variable loading
+[make reddit bot]

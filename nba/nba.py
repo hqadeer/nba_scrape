@@ -1,21 +1,23 @@
 from helpers import get_players
 from entities import Player
 import os
-import csv
+import sys
 import helpers
 import sqlite3
 
 class NBA:
 
 
-    def __init__(self):
+    def __init__(self, update=False):
 
+        self.players = {}
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-        value = cursor.execute('''SELECT count(*) FROM sqlite_master WHERE
-            type='table' AND name = "players"''').fetchone()[0]
-        if value != 0:
-            return
+        if not update:
+            value = cursor.execute('''SELECT count(*) FROM sqlite_master WHERE
+                type='table' AND name = "players"''').fetchone()[0]
+            if value != 0:
+                return
         page = get_players('http://stats.nba.com/players/list/?Historic=Y')
         names = []
         for player in page.find_all("li", class_="players-list__name"):
@@ -31,22 +33,34 @@ class NBA:
         cursor.executemany('''INSERT INTO players (name, id) values (?, ?)''',
             names)
         db.commit()
+        db.close()
 
     def get_player(self, name):
-        return Player(self.players[name])
+        if name.lower() in self.players:
+            id = self.players[name.lower()]
+        else:
+            db = sqlite3.connect('data.db')
+            cursor = db.cursor()
+            cursor.execute('''SELECT * FROM players WHERE name = %s'''
+                % ''.join(['"', name, '"']))
+            pair = cursor.fetchone()
+            if pair is None:
+                raise AttributeError("No player with name: %s" % name)
+            db.close()
+            self.players[pair[0]] = pair[1]
+            id = pair[1]
+        return Player(id)
 
-
-    def load_all_players(self):
-        print("Starting")
-        for key in self.players:
-            print(key)
-            try:
-                temp = Player(self.players[key])
-            except NoSuchElementException:
-                time.sleep(2)
-                temp = Player(self.players[key])
+    def get_player_by_id(self, id):
+        db = sqlite3.connect('data.db')
+        cursor = db.cursor()
+        cursor.execute('''SELECT * FROM players WHERE id = %d''' % int(id))
+        if cursor.fetchone() is None:
+            raise AttributeError("No player with id: %s" % str(id))
+        return Player(id)
 
 
 if __name__ == "__main__":
     scraper = NBA()
+    scraper.get_player_by_id(1111111)
     #temp = Player(scraper.players['dwight howard'])

@@ -1,4 +1,5 @@
 # Core instance
 from nba import NBA
+import helpers
 
-print("does this run")
+helpers.detect_browser()

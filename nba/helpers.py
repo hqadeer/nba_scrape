@@ -173,6 +173,7 @@ def scrape_player_trad(page, id, playoffs=False):
     except sqlite3.OperationalError:
         pass
     else:
+        print("working")
         for statistic in page.find_all("th"):
             if "class" in statistic.attrs and "text" in statistic["class"]:
                 tag = statistic.span
@@ -180,15 +181,13 @@ def scrape_player_trad(page, id, playoffs=False):
                 tag = statistic
             file_string = str(tag).split('>')[1].split('<')[0]
             if file_string in ["Season", "TEAM"]:
-                print(file_string)
                 player_writer.execute('''ALTER TABLE %s ADD %s
                     TEXT''' % (name, file_string))
             else:
                 if '%' in file_string:
-                    file_string = file_string.replace("%", "P")
+                    file_string = file_string.replace("%", "percent")
                 if '3' in file_string:
                     file_string = file_string.replace("3", "three")
-                print(file_string)
                 player_writer.execute('''ALTER TABLE %s ADD %s
                     NUMERIC''' % (name, file_string))
     db.commit()
@@ -223,3 +222,4 @@ def scrape_player_trad(page, id, playoffs=False):
     player_writer.executemany('''INSERT INTO %s values (%s)''' %
         (name, place), entries)
     db.commit()
+    db.close()
