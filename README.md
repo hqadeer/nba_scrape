@@ -1,23 +1,25 @@
-# NBA Scraper
+# NBA Stats
 
-A work-in-progress Python library to scrape professional basketball data off stats.nba.com.
+A work-in-progress Python library to scrape professional basketball data off stats.nba.com using Selenium and BeautifulSoup.
 
 ### Current functionality:
 
-Obtain a player's ID via the NBA class.
+1) Obtain a player's numeric ID via the NBA class.
 
-Scrape all traditional regular season and playoff stats off a player's career page using Selenium and BeautifulSoup.
+2) Scrape all traditional regular season and playoff stats off a player's career page/
 
-Update all data to a SQLite database.
+3) Compute TS% based on several traditional stats.
 
-Compute TS% based on several traditional stats.
+4) Update and retrieve all data using a SQLite database.
 
-### TODO:
+### To Do:
 
-Advanced stats
+1) Support for more advanced stats.
 
-Team stats
+2) Support for team stats.
 
-Wrapper support for more sophisticated database queries.
+3) Wrapper support for more sophisticated database queries. I.e., pulling a player's stats for a specified range of seasons.
 
-Tests.
+4) Write tests to check timing and correctness of library.
+
+5) Make library installable via Pip.
