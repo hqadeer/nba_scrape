@@ -78,15 +78,16 @@ class NBA:
         # Load all NBA players into databaseself.
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-        cursor.execute('''SELECT id FROM players''')
-        for id in cursor:
-            temp = Player(id[0])
-            db.commit()
+        cursor.execute('''SELECT * FROM players''')
+        list = cursor.fetchall()
         db.close()
+        for id in list:
+            print(id[0])
+            temp = Player(id[1])
 
 
 if __name__ == "__main__":
 
     begin = time.time()
     league = NBA()
-    league.load_all_players()
+    league.get_player_by_id(2544)

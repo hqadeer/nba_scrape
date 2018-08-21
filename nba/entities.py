@@ -9,7 +9,7 @@ from nba_exceptions import InvalidStatError
 class Player:
 
     # Class representing an NBA player.
-    
+
     def __init__(self, id, advanced=False):
 
         # If player has not been loaded before, scrape season and playoffs data
@@ -26,8 +26,10 @@ class Player:
         if value == 0:
             url = "".join(["http://stats.nba.com/player/", str(id), '/career'])
             pages = helpers.get_player_trad(url)
-            helpers.scrape_player_trad(pages[0], id, False)
-            helpers.scrape_player_trad(pages[1], id, True)
+            if pages[0] is not None:
+                helpers.scrape_player_trad(pages[0], id, False)
+            if pages[1] is not None:
+                helpers.scrape_player_trad(pages[1], id, True)
         self.season_stats = {}
         self.playoffs_stats = {}
 
@@ -65,10 +67,11 @@ class Player:
                         (str(stat), self.table_name, ''.join(['"', str(year),
                         '"'])))
                     value = cursor.fetchone()
-                    db.close()
                 except sqlite3.OperationalError:
                     raise InvalidStatError("%s does not exist for player %d"
                         % stat, self.id)
+                finally:
+                    db.close()
             if value is None:
                 raise InvalidStatError("Invalid query: %s, %s" % (stat, year))
             if year in store:

@@ -75,8 +75,8 @@ def detect_browser():
             "consider installing Chrome or Firefox.", file=sys.stderr)
         return
 
-    raise InvalidBrowserError("No supported browsers found. Install Chrome or Firefox for",
-        "optimal usage.")
+    raise InvalidBrowserError('''No supported browsers found. Install Chrome or
+        Firefox for optimal usage.''')
 
 def get_players(link):
 
@@ -102,6 +102,7 @@ def get_players(link):
         driver = webdriver.Safari()
     else:
         raise InvalidBrowserError("No valid browser found.")
+
     driver.get(str(link))
     soup = BeautifulSoup(driver.page_source, features='lxml')
     driver.quit()
@@ -111,6 +112,9 @@ def get_player_trad(link, mode="both"):
 
     # Return an html table of an NBA player's career regular season and
     # playoffs stats.
+
+    if mode not in ["both", "season", "playoffs"]:
+        raise ValueError("Invalid value for mode.")
 
     global browser
 
@@ -134,30 +138,47 @@ def get_player_trad(link, mode="both"):
         raise InvalidBrowserError("No valid browser found.")
 
     driver.get(str(link))
-    if mode == "season":
+    if mode.lower() == "season":
         try:
             html = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "table"))
+                EC.presence_of_element_located((By.TAG_NAME, "nba-stat-table"))
             )
-            return [BeautifulSoup(html.get_attribute('innerHTML'),
-                features='lxml')]
+            soup = BeautifulSoup(html.get_attribute('innerHTML'),
+                features='lxml')
+            if (soup.find_all("div", class_="nba-stat-table__caption")[0]
+                    .span.string) == "Career Regular Season Stats":
+                return soup.table
+            else:
+                return
         finally:
             driver.quit()
-    try:
-        htmls = WebDriverWait(driver, 10).until(
-            EC.presence_of_all_elements_located((By.TAG_NAME, "table"))
-        )
-        soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
-            features='lxml')
-        psoup = soup
-        psoup = BeautifulSoup(htmls[2].get_attribute('innerHTML'),
+    else:
+        try:
+            returns = [None, None]
+            htmls = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located((By.TAG_NAME,
+                    "nba-stat-table"))
+            )
+            soup = BeautifulSoup(htmls[1].get_attribute('innerHTML'),
                 features='lxml')
-        if mode == "playoffs":
-            return [psoup]
-        elif mode == "both":
-            return [soup, psoup]
-    finally:
-        driver.quit()
+            if (soup.find_all("div", class_="nba-stat-table__caption")[0]
+                    .span.string) == "Career Playoffs Stats":
+                if mode.lower() == "playoffs":
+                    return soup.table
+                else:
+                    returns[1] = soup.table
+
+            if mode.lower() == "both":
+                soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
+                    features='lxml')
+                if (soup.find_all("div", class_="nba-stat-table__caption")[0]
+                        .span.string) == "Career Regular Season Stats":
+                    returns[0] = soup.table
+
+            return returns
+
+        finally:
+            driver.quit()
 
 def scrape_player_trad(page, id, playoffs=False):
 
@@ -175,7 +196,7 @@ def scrape_player_trad(page, id, playoffs=False):
     name = 'p' + str(id)
 
     try:
-        player_writer.execute('''CREATE TABLE %s(playoffs INTEGER)''' % name)
+        player_writer.execute('''CREATE TABLE %s(PLAYOFFS INTEGER)''' % name)
     except sqlite3.OperationalError:
         pass
     else:
@@ -195,7 +216,7 @@ def scrape_player_trad(page, id, playoffs=False):
                     file_string = file_string.replace("3", "three")
                 player_writer.execute('''ALTER TABLE %s ADD %s
                     NUMERIC''' % (name, file_string))
-    db.commit()
+        db.commit()
 
     # Update table even if it already exists:
 
@@ -210,20 +231,18 @@ def scrape_player_trad(page, id, playoffs=False):
                 values.append(str(statistic.a['href']).split('=')[1].
                     split('&')[0])
             elif "text" in statistic["class"]:
-                values.append(str(statistic.span).split('>')[1].
-                    split('<')[0])
+                values.append(statistic.span.string)
         else:
-            temp = str(statistic).split('>')[1].split('<')[0]
+            temp = statistic.string
             if temp in ['', '-', None]:
                 values.append(None)
             else:
-                values.append(float(str(statistic).
-                    split('>')[1].split('<')[0]))
+                values.append(float(statistic.string))
     if len(values) > 0:
         entries.append(tuple(values))
     values = [pcheck]
     for total in page.tfoot.find_all("td"):
-        value = str(total).split('>')[1].split('<')[0]
+        value = total.string
         if value in ["", "-"]:
             value = None
         if value == "Overall: ":
