@@ -73,11 +73,20 @@ class NBA:
             raise AttributeError("No player with id: %s" % str(id))
         return Player(id)
 
+    def load_all_players(self):
+
+        # Load all NBA players into databaseself.
+        db = sqlite3.connect('data.db')
+        cursor = db.cursor()
+        cursor.execute('''SELECT id FROM players''')
+        for id in cursor:
+            temp = Player(id[0])
+            db.commit()
+        db.close()
+
 
 if __name__ == "__main__":
 
     begin = time.time()
     league = NBA()
-    lebron = league.get_player('bill russell')
-    print (lebron.get_stat('TS%', '1966-97'))
-    print(time.time() - begin)
+    league.load_all_players()
