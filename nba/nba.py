@@ -8,8 +8,12 @@ import time
 
 class NBA:
 
+    # Core class by which NBA stats can be accessed.
 
     def __init__(self, update=False):
+
+        # Creates table mapping player names to ids if none exists, or if
+        # update flag is true.
 
         self.players = {}
         db = sqlite3.connect('data.db')
@@ -37,6 +41,11 @@ class NBA:
         db.close()
 
     def get_player(self, name):
+
+        # Return an instance of the Player class for an NBA player with
+        # the provided name. Cache calls in a dict to reduce database
+        # queries. Raise AttributeError if an invalid name is provided.
+
         if name.lower() in self.players:
             id = self.players[name.lower()]
         else:
@@ -53,6 +62,10 @@ class NBA:
         return Player(id)
 
     def get_player_by_id(self, id):
+
+        # Return an instance of the Player class based on the provided ID.
+        # Raise AttributeError if an invalid ID is provided.
+
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
         cursor.execute('''SELECT * FROM players WHERE id = %d''' % int(id))
@@ -62,9 +75,9 @@ class NBA:
 
 
 if __name__ == "__main__":
+
     begin = time.time()
     league = NBA()
     lebron = league.get_player('bill russell')
     print (lebron.get_stat('TS%', '1966-97'))
     print(time.time() - begin)
-    #temp = Player(scraper.players['dwight howard'])

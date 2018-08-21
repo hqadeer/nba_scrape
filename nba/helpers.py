@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from nba_exceptions import InvalidBrowserError
 import sqlite3
-import csv
 import traceback
 import sys
 
@@ -14,6 +13,8 @@ browser = "chrome"
 
 def detect_browser():
 
+    # Detect user's browser and set browser to be the best available one.
+    # Raise InvalidBrowserError if no supported browser is found.
 
     global browser
 
@@ -79,6 +80,7 @@ def detect_browser():
 
 def get_players(link):
 
+    # Return BeautifulSoup page of stats.nba.com's list of players.
 
     global browser
 
@@ -107,6 +109,8 @@ def get_players(link):
 
 def get_player_trad(link, mode="both"):
 
+    # Return an html table of an NBA player's career regular season and
+    # playoffs stats.
 
     global browser
 
@@ -157,6 +161,10 @@ def get_player_trad(link, mode="both"):
 
 def scrape_player_trad(page, id, playoffs=False):
 
+    # Create database table for a player if it doesn't already exist.
+    # Write regular season or playoffs stats to the table as specified by
+    # the playoffs flag.
+
     if playoffs == False:
         pcheck = 0
     else:
@@ -188,6 +196,8 @@ def scrape_player_trad(page, id, playoffs=False):
                 player_writer.execute('''ALTER TABLE %s ADD %s
                     NUMERIC''' % (name, file_string))
     db.commit()
+
+    # Update table even if it already exists:
 
     values = []
     entries = []

@@ -8,7 +8,12 @@ from nba_exceptions import InvalidStatError
 
 class Player:
 
+    # Class representing an NBA player.
+    
     def __init__(self, id, advanced=False):
+
+        # If player has not been loaded before, scrape season and playoffs data
+        # to database table. Initialize two empty dicts.
 
         self.id = id
         self.table_name = 'p' + str(id)
@@ -27,6 +32,12 @@ class Player:
         self.playoffs_stats = {}
 
     def get_stat(self, stat, year='career', playoffs=False):
+
+        # Return instance player's specified stat for the specified year.
+        # Format input stat to account for capitalization.
+        # Compute TS% by recursively calling method for points, FGA, and FTA.
+        # Raise InvalidStatError if stat/year do not exist.
+
         if playoffs == False:
             store = self.season_stats
         else:
@@ -56,10 +67,10 @@ class Player:
                     value = cursor.fetchone()
                     db.close()
                 except sqlite3.OperationalError:
-                    raise InvalidStatError("%s does not exist for %d"
+                    raise InvalidStatError("%s does not exist for player %d"
                         % stat, self.id)
             if value is None:
-                raise AttributeError("Invalid query: %s, %s" % (stat, year))
+                raise InvalidStatError("Invalid query: %s, %s" % (stat, year))
             if year in store:
                 store[year][stat] = value[0]
             else:
@@ -68,6 +79,9 @@ class Player:
             return value[0]
 
     def get_all_stats(self, mode="both"):
+
+        # Query database to return list of tuples of all player stats.
+        # Return sesason stats, playoffs stats, or both based on specified mode.
 
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
