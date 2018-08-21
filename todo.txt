@@ -1,5 +1,0 @@
-TODO:
-Tests
-Exception handling / PEP-8
-More advanced stats - add to player's database
-[make reddit bot]
