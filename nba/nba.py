@@ -64,9 +64,7 @@ class NBA:
 if __name__ == "__main__":
     begin = time.time()
     league = NBA()
-    lebron = league.get_player('lebron james')
-    print (lebron.get_stat('PTS', 'career'))
-    print (lebron.get_stat('PTS', 'career'))
-    print (lebron.get_all_stats(mode="season")[3])
+    lebron = league.get_player('bill russell')
+    print (lebron.get_stat('TS%', '1966-97'))
     print(time.time() - begin)
     #temp = Player(scraper.players['dwight howard'])

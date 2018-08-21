@@ -4,6 +4,7 @@ import helpers
 import csv
 import time
 import sqlite3
+from nba_exceptions import InvalidStatError
 
 class Player:
 
@@ -39,13 +40,24 @@ class Player:
         if year in store and stat in store[year]:
             return store[year][stat]
         else:
-            db = sqlite3.connect('data.db')
-            cursor = db.cursor()
-            cursor.execute('''SELECT %s FROM %s WHERE Season = %s''' %
-                (str(stat), self.table_name, ''.join(['"', str(year),
-                '"'])))
-            value = cursor.fetchone()
-            db.close()
+            if stat == "TSpercent":
+                points = self.get_stat('PTS', year, playoffs)
+                field_goals_attempted = self.get_stat('FGA', year, playoffs)
+                free_throws_attempted = self.get_stat('FTA', year, playoffs)
+                value = (points / (2*(field_goals_attempted +
+                    0.44 * free_throws_attempted)), )
+            else:
+                db = sqlite3.connect('data.db')
+                cursor = db.cursor()
+                try:
+                    cursor.execute('''SELECT %s FROM %s WHERE Season = %s''' %
+                        (str(stat), self.table_name, ''.join(['"', str(year),
+                        '"'])))
+                    value = cursor.fetchone()
+                    db.close()
+                except sqlite3.OperationalError:
+                    raise InvalidStatError("%s does not exist for %d"
+                        % stat, self.id)
             if value is None:
                 raise AttributeError("Invalid query: %s, %s" % (stat, year))
             if year in store:

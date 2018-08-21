@@ -203,8 +203,12 @@ def scrape_player_trad(page, id, playoffs=False):
                 values.append(str(statistic.span).split('>')[1].
                     split('<')[0])
         else:
-            values.append(float(str(statistic).
-                split('>')[1].split('<')[0]))
+            temp = str(statistic).split('>')[1].split('<')[0]
+            if temp in ['', '-', None]:
+                values.append(None)
+            else:
+                values.append(float(str(statistic).
+                    split('>')[1].split('<')[0]))
     if len(values) > 0:
         entries.append(tuple(values))
     values = [pcheck]
