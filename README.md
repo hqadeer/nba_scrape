@@ -6,11 +6,11 @@ A work-in-progress Python library to scrape professional basketball data off sta
 
 1) Obtain a player's numeric ID via the NBA class.
 
-2) Scrape all traditional regular season and playoff stats off a player's career page/
+2) Scrape all traditional regular season and playoff stats off a player's career page to a SQLite database.
 
 3) Compute TS% based on several traditional stats.
 
-4) Update and retrieve all data using a SQLite database.
+4) Retrieve specific stats or entire player profile with database queries.
 
 ### To Do:
 
