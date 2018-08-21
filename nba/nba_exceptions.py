@@ -1,0 +1,2 @@
+class InvalidBrowserError(Exception):
+    pass

@@ -4,6 +4,7 @@ import selenium.common.exceptions as selexc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from nba_exceptions import InvalidBrowserError
 import sqlite3
 import csv
 import traceback
@@ -73,9 +74,8 @@ def detect_browser():
             "consider installing Chrome or Firefox.", file=sys.stderr)
         return
 
-    print("No supported browsers found. Install Chrome or Firefox for",
-        "optimal usage.", file=sys.stderr)
-    raise
+    raise InvalidBrowserError("No supported browsers found. Install Chrome or Firefox for",
+        "optimal usage.")
 
 def get_players(link):
 
@@ -99,8 +99,7 @@ def get_players(link):
     elif browser == "safari":
         driver = webdriver.Safari()
     else:
-        print("No browser found.", file=sys.stderr)
-        raise
+        raise InvalidBrowserError("No valid browser found.")
     driver.get(str(link))
     soup = BeautifulSoup(driver.page_source, features='lxml')
     driver.quit()
@@ -128,8 +127,7 @@ def get_player_trad(link, mode="both"):
     elif browser == "safari":
         driver = webdriver.Safari()
     else:
-        print("No browser found.", file=sys.stderr)
-        raise
+        raise InvalidBrowserError("No valid browser found.")
 
     driver.get(str(link))
     if mode == "season":
