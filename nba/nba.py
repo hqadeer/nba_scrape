@@ -4,6 +4,7 @@ import os
 import sys
 import helpers
 import sqlite3
+import time
 
 class NBA:
 
@@ -61,6 +62,11 @@ class NBA:
 
 
 if __name__ == "__main__":
-    scraper = NBA()
-    scraper.get_player_by_id(1111111)
+    begin = time.time()
+    league = NBA()
+    lebron = league.get_player('lebron james')
+    print (lebron.get_stat('PTS', 'career'))
+    print (lebron.get_stat('PTS', 'career'))
+    print (lebron.get_all_stats(mode="season")[3])
+    print(time.time() - begin)
     #temp = Player(scraper.players['dwight howard'])

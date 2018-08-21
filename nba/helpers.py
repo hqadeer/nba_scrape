@@ -173,7 +173,6 @@ def scrape_player_trad(page, id, playoffs=False):
     except sqlite3.OperationalError:
         pass
     else:
-        print("working")
         for statistic in page.find_all("th"):
             if "class" in statistic.attrs and "text" in statistic["class"]:
                 tag = statistic.span
@@ -215,6 +214,8 @@ def scrape_player_trad(page, id, playoffs=False):
         value = str(total).split('>')[1].split('<')[0]
         if value in ["", "-"]:
             value = None
+        if value == "Overall: ":
+            value = "CAREER"
         values.append(value)
 
     entries.append(tuple(values))
