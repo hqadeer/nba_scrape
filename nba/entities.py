@@ -97,6 +97,8 @@ class Player:
         # to the 2004-05 season (2005 playoffs) through the 2009-10 season
         # (2010 playoffs).
 
+        # To do: Add support for TS% queries.
+
         pvalues = []
         if mode.lower() == "season":
             pvalue = 0
@@ -111,6 +113,9 @@ class Player:
                 stats[i] = stat.replace("3", "three")
             if "%" in stats[i]:
                 stats[i] = stat.replace("%", "percent")
+
+        if "TSpercent" in stats:
+            raise ValueError("Invalid stat for multi-stat queries: TS%")
 
         if (year_range is not None and year_range.upper() != "CAREER" and
                 (len(year_range) != 7 or "-" not in year_range)):
