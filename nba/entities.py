@@ -59,9 +59,13 @@ class Player:
             return store[year][stat]
         else:
             if stat == "TSpercent":
-                points = self.get_stat('PTS', year, playoffs)
-                field_goals_attempted = self.get_stat('FGA', year, playoffs)
-                free_throws_attempted = self.get_stat('FTA', year, playoffs)
+                if playoffs == False:
+                    send_mode = "season"
+                else:
+                    send_mode = "playoffs"
+                points, field_goals_attempted, free_throws_attempted = (
+                    self.get_stats(['PTS', 'FGA', 'FTA'], year,
+                    mode=send_mode))[0]
                 value = (points / (2*(field_goals_attempted +
                     0.44 * free_throws_attempted)), )
             else:
@@ -86,11 +90,11 @@ class Player:
                 store[year] = temp
             return value[0]
 
-    def get_stats(self, stats, year_range, mode="season"):
+    def get_stats(self, stats, year_range=None, mode="season"):
 
-        # Return values for a list of player stats and a range of seasons.
-        # Year ranges should be in the format YYYY-YY. 2004-10 refers to
-        # the 2004-05 season (2005 playoffs) through the 2009-10 season
+        # Return a list of tuples for player stats from a specified range of
+        # seasons. Year ranges should be in the format YYYY-YY; 2004-10 refers
+        # to the 2004-05 season (2005 playoffs) through the 2009-10 season
         # (2010 playoffs).
 
         pvalues = []
@@ -101,42 +105,56 @@ class Player:
         elif mode.lower() != "both":
             raise ValueError("Mode must be 'season', 'playoffs', or 'both'.")
 
-        for stat in stats:
-            stat = stat.upper()
+        for i, stat in enumerate(stats):
+            stats[i] = ''.join(['"', stat.upper(), '"'])
             if "3" in stat:
-                stat = stat.replace("3", "three")
-            if "%" in stat:
-                stat = stat.replace("%", "percent")
+                stats[i] = stat.replace("3", "three")
+            if "%" in stats[i]:
+                stats[i] = stat.replace("%", "percent")
 
-        if len(year_range) != 7 or "-" not in year_range:
-            raise ValueError("Invalid year range provided.")
+        if (year_range is not None and year_range.upper() != "CAREER" and
+                (len(year_range) != 7 or "-" not in year_range)):
+            raise ValueError("Invalid year range provided: %s" % year_range)
         if len(stats) < 1:
             raise ValueError("Please provide at least one stat.")
-        years = year_range.split('-')
-        begin_year = years[0]
-        if int(begin_year[2:4]) < int(years[1]):
-            end_year = int(begin_year[0:2] + years[1])
-        else:
-            end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
-        seasons = []
-        while int(begin_year) < int(end_year):
-            seasons.append('-'.join([begin_year, str(int(begin_year)+1)[2:4]]))
-            begin_year = str(int(begin_year) + 1)
+
+        if year_range is not None and year_range.upper() != "CAREER":
+            years = year_range.split('-')
+            begin_year = years[0]
+            if int(begin_year[2:4]) < int(years[1]):
+                end_year = int(begin_year[0:2] + years[1])
+            else:
+                end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
+            seasons = []
+            while int(begin_year) < int(end_year):
+                seasons.append(''.join(['"', '-'.join([begin_year,
+                str(int(begin_year)+1)[2:4]]), '"']))
+                begin_year = str(int(begin_year) + 1)
+        elif year_range.upper() == "CAREER":
+            seasons = ['"CAREER"']
+
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-        if mode == "both":
-            cursor.execute('''SELECT (%s) FROM %s WHERE Season IN (%s) AND
-                PLAYOFFS in (0, 1)''' % (', '.join(stats), self.table_name,
-                ', '.join(seasons)))
-        else:
-            cursor.execute('''SELECT (%s) FROM %s WHERE Season IN (%s) AND
-                PLAYOFFS = %d''' % (', '.join(stats), self.table_name,
-                ', '.join(seasons), pvalue))
-        return(cursor.fetchall())
-
-
-
-
+        try:
+            if year_range is None and mode.lower() == "both":
+                cursor.execute('''SELECT (%s) FROM %s ORDER BY Season'''
+                    % (', '.join(stats), self.table_name))
+            elif year_range is None:
+                cursor.execute('''SELECT %s FROM %s WHERE PLAYOFFS = %d
+                    AND Season IN (%s) ORDER BY Season''' % (', '.join(stats),
+                    self.table_name, pvalue, ', '.join(seasons)))
+            if mode.lower() == "both":
+                cursor.execute('''SELECT (%s) FROM %s WHERE Season IN (%s)
+                    ORDER BY Season''' % (', '.join(stats),
+                    self.table_name, ', '.join(seasons)))
+            else:
+                cursor.execute('''SELECT %s FROM %s WHERE PLAYOFFS = %d
+                    AND Season IN (%s) ORDER BY Season''' % (', '.join(stats),
+                    self.table_name, pvalue, ', '.join(seasons)))
+            temp = cursor.fetchall()
+        finally:
+            db.close()
+        return(temp)
 
     def get_all_stats(self, mode="both"):
 
@@ -148,11 +166,11 @@ class Player:
         if mode == "both":
             cursor.execute('''SELECT * FROM %s''' % self.table_name)
         elif mode == "playoffs":
-            cursor.execute('''SELECT * FROM %s WHERE playoffs = 1'''
-                % self.table_name)
+            cursor.execute('''SELECT * FROM %s WHERE playoffs = 1 ORDER BY
+                Season''' % self.table_name)
         elif mode == "season":
-            cursor.execute('''SELECT * FROM %s WHERE playoffs = 0'''
-                % self.table_name)
+            cursor.execute('''SELECT * FROM %s WHERE playoffs = 0 ORDER BY
+                Season''' % self.table_name)
         else:
             raise ValueError("Invalid argument passed to 'mode'")
         return cursor.fetchall()
@@ -161,6 +179,6 @@ class Player:
 if __name__ == "__main__":
     lbj = Player(2544)
     begin1 = time.time()
-    print(lbj.get_stat('pts', '2017-18', playoffs=True))
-    lbj.get_stats(['pts', 'ast', 'reb'], '2003-14')
+    print(lbj.get_stat('TS%', 'career', playoffs=True))
+    print(lbj.get_stats(['pts', 'ast', 'reb'], '2003-04'))
     print(time.time() - begin1)
