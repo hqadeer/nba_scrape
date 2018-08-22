@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 import selenium.common.exceptions as selexc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 from nba_exceptions import InvalidBrowserError
 import sqlite3
@@ -45,8 +46,8 @@ def detect_browser():
         pass
     else:
         browser = "PhantomJS"
-        print("Using PhantomJS, which is an unsupported browser.",
-            "Consider installing Chrome or Firefox.", file=sys.stderr)
+        print('''Using PhantomJS, which is an unsupported browser.
+            Consider installing Chrome or Firefox.''', file=sys.stderr)
         driver.quit()
         return
 
@@ -56,8 +57,9 @@ def detect_browser():
         pass
     else:
         browser = "opera"
-        print("Using Opera. Opera does not support headless mode, so",
-            "consider installing Chrome or Firefox.", file=sys.stderr)
+        driver.quit()
+        print('''Using Opera. Opera does not support headless mode, so
+            consider installing Chrome or Firefox.''', file=sys.stderr)
         return
 
     try:
@@ -65,11 +67,13 @@ def detect_browser():
     except (selexc.WebDriverException, FileNotFoundError) as exc:
         pass
     except selexc.SessionNotCreatedException:
+        driver.quit()
         print("To use Safari for scraping, enable 'Allow Remote",
             "Automation' option in Safari's Develop menu. Safari does not",
             "support headless mode, so consider installing Chrome or Firefox",
             file=sys.stderr)
     else:
+        driver.quit()
         browser = "safari"
         print("Using Safari. Safari does not support headless mode, so",
             "consider installing Chrome or Firefox.", file=sys.stderr)
@@ -155,10 +159,13 @@ def get_player_trad(link, mode="both"):
     else:
         try:
             returns = [None, None]
-            htmls = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.TAG_NAME,
-                    "nba-stat-table"))
-            )
+            try:
+                htmls = WebDriverWait(driver, 5).until(
+                    EC.presence_of_all_elements_located((By.TAG_NAME,
+                        "nba-stat-table"))
+                )
+            except TimeoutException:
+                return returns
             soup = BeautifulSoup(htmls[1].get_attribute('innerHTML'),
                 features='lxml')
             if (soup.find_all("div", class_="nba-stat-table__caption")[0]
@@ -175,10 +182,20 @@ def get_player_trad(link, mode="both"):
                         .span.string) == "Career Regular Season Stats":
                     returns[0] = soup.table
 
-            return returns
+                return returns
 
         finally:
             driver.quit()
+
+def create_empty_table(id):
+
+    # Create empty table for players with no available stats, so that repeated
+    # calls to these players do not incur Selenium bottlenecks.
+
+    db = sqlite3.connect('data.db')
+    cursor = db.cursor()
+    name = 'p' + str(id)
+    cursor.execute("CREATE TABLE IF NOT EXISTS %s" % name)
 
 def scrape_player_trad(page, id, playoffs=False):
 

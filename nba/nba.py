@@ -88,6 +88,6 @@ class NBA:
 
 if __name__ == "__main__":
 
-    begin = time.time()
     league = NBA()
-    league.get_player_by_id(2544)
+    begin = time.time()
+    league.get_player_by_id(1626164)

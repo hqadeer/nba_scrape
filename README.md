@@ -18,8 +18,6 @@ A work-in-progress Python utility to easily scrape professional basketball data 
 
 2) Support for team stats.
 
-3) Wrapper support for more sophisticated database queries. I.e., pulling a player's stats for a specified range of seasons.
+3) Write tests to check timing and correctness of code.
 
-4) Write tests to check timing and correctness of code.
-
-5) Make utility installable via Pip.
+4) Make utility installable via Pip.

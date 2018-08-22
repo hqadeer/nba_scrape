@@ -5,6 +5,7 @@ import csv
 import time
 import sqlite3
 from nba_exceptions import InvalidStatError
+import time
 
 class Player:
 
@@ -30,6 +31,8 @@ class Player:
                 helpers.scrape_player_trad(pages[0], id, False)
             if pages[1] is not None:
                 helpers.scrape_player_trad(pages[1], id, True)
+            elif pages[0] is None:
+                helpers.create_empty_table(id)
         self.season_stats = {}
         self.playoffs_stats = {}
 
@@ -42,8 +45,10 @@ class Player:
 
         if playoffs == False:
             store = self.season_stats
+            pvalue = 0
         else:
             store = self.playoffs_stats
+            pvalue = 1
         stat = stat.upper()
         year = year.upper()
         if "3" in stat:
@@ -63,23 +68,75 @@ class Player:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
                 try:
-                    cursor.execute('''SELECT %s FROM %s WHERE Season = %s''' %
-                        (str(stat), self.table_name, ''.join(['"', str(year),
-                        '"'])))
+                    cursor.execute('''SELECT %s FROM %s WHERE Season = %s AND
+                        PLAYOFFS = %d''' % (str(stat), self.table_name,
+                        ''.join(['"', str(year), '"']), pvalue))
                     value = cursor.fetchone()
                 except sqlite3.OperationalError:
                     raise InvalidStatError("%s does not exist for player %d"
-                        % stat, self.id)
+                        % (stat, self.id))
                 finally:
                     db.close()
             if value is None:
-                raise InvalidStatError("Invalid query: %s, %s" % (stat, year))
+                return None
             if year in store:
                 store[year][stat] = value[0]
             else:
                 temp = {stat: value[0]}
                 store[year] = temp
             return value[0]
+
+    def get_stats(self, stats, year_range, mode="season"):
+
+        # Return values for a list of player stats and a range of seasons.
+        # Year ranges should be in the format YYYY-YY. 2004-10 refers to
+        # the 2004-05 season (2005 playoffs) through the 2009-10 season
+        # (2010 playoffs).
+
+        pvalues = []
+        if mode.lower() == "season":
+            pvalue = 0
+        elif mode.lower() == "playoffs":
+            pvalue = 1
+        elif mode.lower() != "both":
+            raise ValueError("Mode must be 'season', 'playoffs', or 'both'.")
+
+        for stat in stats:
+            stat = stat.upper()
+            if "3" in stat:
+                stat = stat.replace("3", "three")
+            if "%" in stat:
+                stat = stat.replace("%", "percent")
+
+        if len(year_range) != 7 or "-" not in year_range:
+            raise ValueError("Invalid year range provided.")
+        if len(stats) < 1:
+            raise ValueError("Please provide at least one stat.")
+        years = year_range.split('-')
+        begin_year = years[0]
+        if int(begin_year[2:4]) < int(years[1]):
+            end_year = int(begin_year[0:2] + years[1])
+        else:
+            end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
+        seasons = []
+        while int(begin_year) < int(end_year):
+            seasons.append('-'.join([begin_year, str(int(begin_year)+1)[2:4]]))
+            begin_year = str(int(begin_year) + 1)
+        db = sqlite3.connect('data.db')
+        cursor = db.cursor()
+        if mode == "both":
+            cursor.execute('''SELECT (%s) FROM %s WHERE Season IN (%s) AND
+                PLAYOFFS in (0, 1)''' % (', '.join(stats), self.table_name,
+                ', '.join(seasons)))
+        else:
+            cursor.execute('''SELECT (%s) FROM %s WHERE Season IN (%s) AND
+                PLAYOFFS = %d''' % (', '.join(stats), self.table_name,
+                ', '.join(seasons), pvalue))
+        return(cursor.fetchall())
+
+
+
+
 
     def get_all_stats(self, mode="both"):
 
@@ -103,4 +160,7 @@ class Player:
 
 if __name__ == "__main__":
     lbj = Player(2544)
-    lbj.get_stat('pts', '2008-09')
+    begin1 = time.time()
+    print(lbj.get_stat('pts', '2017-18', playoffs=True))
+    lbj.get_stats(['pts', 'ast', 'reb'], '2003-14')
+    print(time.time() - begin1)
