@@ -1,7 +1,6 @@
 import os
 import errno
 import helpers
-import csv
 import time
 import sqlite3
 from nba_exceptions import InvalidStatError

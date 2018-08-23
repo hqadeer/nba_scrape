@@ -7,3 +7,8 @@ nba/__pycache__
 **/.DS_Store
 geckodriver.log
 **/data.db
+nba/LICENSE
+nba/README.md
+nba/build
+nba/dist
+nba/nba_stats.egg-info/
