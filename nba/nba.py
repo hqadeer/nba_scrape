@@ -90,4 +90,4 @@ if __name__ == "__main__":
 
     league = NBA()
     begin = time.time()
-    league.get_player_by_id(1626164)
+    league.get_player_by_id(2544).get_stat('or 1=1', '2004-05')

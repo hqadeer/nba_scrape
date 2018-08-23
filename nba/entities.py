@@ -51,6 +51,7 @@ class Player:
             pvalue = 1
         stat = stat.upper()
         year = year.upper()
+        helpers.scrub(year)
         if "3" in stat:
             stat = stat.replace("3", "three")
         if "%" in stat:
@@ -58,6 +59,7 @@ class Player:
         if year in store and stat in store[year]:
             return store[year][stat]
         else:
+            helpers.scrub(stat)
             if stat == "TSpercent":
                 if playoffs == False:
                     send_mode = "season"
@@ -69,11 +71,13 @@ class Player:
                 value = (points / (2*(field_goals_attempted +
                     0.44 * free_throws_attempted)), )
             else:
+                if ';' in stat or ';' in year:
+                    raise ValueError("No semicolons allowed in inputs.")
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
                 try:
-                    cursor.execute('''SELECT %s FROM %s WHERE Season = %s AND
-                        PLAYOFFS = %d''' % (str(stat), self.table_name,
+                    cursor.execute('''SELECT ? FROM %s WHERE Season=? AND
+                        PLAYOFFS = %d''' % self.table_name, (str(stat),
                         ''.join(['"', str(year), '"']), pvalue))
                     value = cursor.fetchone()
                 except sqlite3.OperationalError:
@@ -113,6 +117,7 @@ class Player:
                 stats[i] = stat.replace("3", "three")
             if "%" in stats[i]:
                 stats[i] = stat.replace("%", "percent")
+            helpers.scrub(stats)
 
         if "TSpercent" in stats:
             raise ValueError("Invalid stat for multi-stat queries: TS%")
@@ -123,6 +128,7 @@ class Player:
         if len(stats) < 1:
             raise ValueError("Please provide at least one stat.")
 
+        helpers.scrub(year_range)
         if year_range is not None and year_range.upper() != "CAREER":
             years = year_range.split('-')
             begin_year = years[0]
@@ -142,7 +148,7 @@ class Player:
         cursor = db.cursor()
         try:
             if year_range is None and mode.lower() == "both":
-                cursor.execute('''SELECT (%s) FROM %s ORDER BY Season'''
+                cursor.execute('''SELECT (%) FROM %s ORDER BY Season'''
                     % (', '.join(stats), self.table_name))
             elif year_range is None:
                 cursor.execute('''SELECT %s FROM %s WHERE PLAYOFFS = %d

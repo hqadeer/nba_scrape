@@ -272,3 +272,11 @@ def scrape_player_trad(page, id, playoffs=False):
         (name, place), entries)
     db.commit()
     db.close()
+
+def scrub(text):
+    if not isinstance(text, str):
+        raise ValueError("Invalid input passed to scrub; expected str.")
+    bad_chars = [';', 'OR', ' ']
+    if any(i in text for i in bad_chars):
+        raise ValueError('''Invalid input passed for database query. Please
+            don't hack me.''')
