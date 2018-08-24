@@ -8,12 +8,13 @@ import time
 
 class Player:
 
-    # Class representing an NBA player.
+    '''Class representing an NBA player.'''
 
-    def __init__(self, id, advanced=False):
+    def __init__(self, id):
 
-        # If player has not been loaded before, scrape season and playoffs data
-        # to database table. Initialize two empty dicts.
+        ''' Build player table if it doesn't already exist
+            id (int) -- player ID number
+        '''
 
         self.id = id
         self.table_name = 'p' + str(id)
@@ -37,10 +38,17 @@ class Player:
 
     def get_stat(self, stat, year='career', playoffs=False):
 
-        # Return instance player's specified stat for the specified year.
-        # Format input stat to account for capitalization.
-        # Compute TS% by recursively calling method for points, FGA, and FTA.
-        # Raise InvalidStatError if stat/year do not exist.
+        '''Return instance player's specified stat for the specified year.
+
+        Format input stat to account for capitalization.
+        Compute TS% by recursively calling method for points, FGA, and FTA.
+        Raise InvalidStatError if stat/year do not exist.
+
+        stat (str) -- desired statistic; FGA, FTM, FG%, 3PM, PTS, AST, etc.
+        year (str) -- desired season (i.e. '2003-04'). Overall stats
+                      (season='career') given if no season specified.
+        playoffs (bool) -- True = playoffs stats, False = season stats
+        '''
 
         if playoffs == False:
             store = self.season_stats
@@ -95,12 +103,18 @@ class Player:
 
     def get_stats(self, stats, year_range=None, mode="season"):
 
-        # Return a list of tuples for player stats from a specified range of
-        # seasons. Year ranges should be in the format YYYY-YY; 2004-10 refers
-        # to the 2004-05 season (2005 playoffs) through the 2009-10 season
-        # (2010 playoffs).
+        '''Return a list of tuples of player stats
 
-        # To do: Add support for TS% queries.
+        Can return a range of stats over a range of seasonsself.
+
+        stats (list) -- stats desired. I.e. ['PTS', 'AST', 'REB']
+        year_range (str) -- seasons desired. '2004-10' would return stats from
+                            the 2004-05 season to the 2009-10 season. Range can
+                            also be 'career', returning overall stats, or None,
+                            returning stats from all seasons (and overall
+                            averages).
+        mode (str) -- must be 'season', 'playoffs', or 'both'.
+        '''
 
         pvalues = []
         if mode.lower() == "season":
@@ -168,17 +182,20 @@ class Player:
 
     def get_all_stats(self, mode="both"):
 
-        # Query database to return list of tuples of all player stats.
-        # Return sesason stats, playoffs stats, or both based on specified mode.
+        '''Query database to return list of tuples of all player stats.
+
+        mode (str) -- 'season', 'playoffs', or 'both'. Determines what type of
+                      stats are returned.
+        '''
 
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-        if mode == "both":
+        if mode.lower() == "both":
             cursor.execute('''SELECT * FROM %s''' % self.table_name)
-        elif mode == "playoffs":
+        elif mode.lower() == "playoffs":
             cursor.execute('''SELECT * FROM %s WHERE playoffs = 1 ORDER BY
                 Season''' % self.table_name)
-        elif mode == "season":
+        elif mode.lower() == "season":
             cursor.execute('''SELECT * FROM %s WHERE playoffs = 0 ORDER BY
                 Season''' % self.table_name)
         else:
