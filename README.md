@@ -14,6 +14,4 @@ A work-in-progress Python utility to easily scrape professional basketball data 
 
 ### To Do:
 
-1) Write tests to check timing and correctness of code.
-
-2) Make utility installable via Pip.
+Write tests to check timing and correctness of code.
