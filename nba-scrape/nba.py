@@ -8,12 +8,16 @@ import time
 
 class NBA:
 
-    # Core class by which NBA stats can be accessed.
+    '''Core class by which NBA stats can be accessed.'''
 
     def __init__(self, update=False):
 
-        # Creates table mapping player names to ids if none exists, or if
-        # update flag is true.
+        '''Initializes list of NBA players to database if not already present
+
+        update (bool) -- If true, init will re-initialize the list of players
+        even if a current list of players exists on the database. This allows
+        user to update the list for new players.
+        '''
 
         self.players = {}
         db = sqlite3.connect('data.db')
@@ -42,9 +46,13 @@ class NBA:
 
     def get_player(self, name):
 
-        # Return an instance of the Player class for an NBA player with
-        # the provided name. Cache calls in a dict to reduce database
-        # queries. Raise AttributeError if an invalid name is provided.
+        '''Returns a Player object based on the given name.
+
+        If the player is not found in the database's list of players, an
+        AttributeError is raised.
+
+        name (str) -- name of the player desired, case-insensitive.
+        '''
 
         if name.lower() in self.players:
             id = self.players[name.lower()]
@@ -63,8 +71,13 @@ class NBA:
 
     def get_player_by_id(self, id):
 
-        # Return an instance of the Player class based on the provided ID.
-        # Raise AttributeError if an invalid ID is provided.
+        '''Returns a player object based on the given ID.
+
+        Raises an AttributeError if the provided ID does not correspond to a
+        known player.
+
+        id (int) -- ID of the player desired.
+        '''
 
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
@@ -75,7 +88,12 @@ class NBA:
 
     def load_all_players(self):
 
-        # Load all NBA players into databaseself.
+        '''Loads all NBA players to local database.
+
+        WARNING: This takes multiple hours to complete and will use a non-
+        negligible amount of disk storage.
+        '''
+
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
         cursor.execute('''SELECT * FROM players''')

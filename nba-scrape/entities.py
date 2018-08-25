@@ -13,6 +13,7 @@ class Player:
     def __init__(self, id):
 
         ''' Build player table if it doesn't already exist
+        
             id (int) -- player ID number
         '''
 
@@ -223,6 +224,7 @@ class Player:
         return temp
 
 if __name__ == "__main__":
+
     lbj = Player(2544)
     begin1 = time.time()
     print(lbj.get_stat('TS%', 'career', playoffs=True))

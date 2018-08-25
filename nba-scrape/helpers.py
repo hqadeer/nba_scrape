@@ -198,8 +198,11 @@ def get_player_trad(link, mode="both"):
 
 def create_empty_row(id):
 
-    # Create empty table for players with no available stats, so that repeated
-    # calls to these players do not incur Selenium bottlenecks.
+    '''Creates empty row in tradstats table.
+
+    Used as a placeholder for listed players with no stats. This way, calls to
+    these players do not incur Selenium bottlenecks.
+    '''
 
     db = sqlite3.connect('data.db')
     cursor = db.cursor()
@@ -207,9 +210,16 @@ def create_empty_row(id):
 
 def scrape_player_trad(page, id, playoffs=False):
 
-    # Create database table for a player if it doesn't already exist.
-    # Write regular season or playoffs stats to the table as specified by
-    # the playoffs flag.
+    '''Reads player data off an html page and add it to a database table.
+
+    Creates database table for a player with appropriate headers if it doesn't
+    already exist.
+
+    page (BeautifulSoup) -- html page to be read by the method.
+    id (int) -- id of the player being read
+    playoffs (bool) -- specifies whether playoff or regular season stats will be
+    added to the database.
+    '''
 
     if playoffs == False:
         pcheck = 0
@@ -225,6 +235,7 @@ def scrape_player_trad(page, id, playoffs=False):
     except sqlite3.OperationalError:
         pass
     else:
+        player_writer.execute('''CREATE INDEX id_index on tradstats (ID)''')
         for statistic in page.find_all("th"):
             if "class" in statistic.attrs and "text" in statistic["class"]:
                 tag = statistic.span
@@ -281,6 +292,15 @@ def scrape_player_trad(page, id, playoffs=False):
     db.close()
 
 def scrub(text):
+    
+    '''Ensures against SQL injections for user-provided database queries.
+
+    Checks against a list of malicious characters (given by bad_chars).
+
+    text (str) -- String being tested; this is usually user input for a
+    database query.
+    '''
+
     if not isinstance(text, str):
         raise ValueError("Invalid input passed to scrub; expected str.")
     bad_chars = [';', 'OR ', ' ']
