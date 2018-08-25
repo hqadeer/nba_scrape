@@ -14,8 +14,10 @@ browser = "chrome"
 
 def detect_browser():
 
-    # Detect user's browser and set browser to be the best available one.
-    # Raise InvalidBrowserError if no supported browser is found.
+    '''Detect user's browser and set browser to be the best available one.
+
+    Raise InvalidBrowserError if no supported browser is found.
+    '''
 
     global browser
 
@@ -84,7 +86,10 @@ def detect_browser():
 
 def get_players(link):
 
-    # Return BeautifulSoup page of stats.nba.com's list of players.
+    ''' Return BeautifulSoup page of stats.nba.com's list of players.
+
+    link -- URL to NBA's list of all players.
+    '''
 
     global browser
 
@@ -114,8 +119,12 @@ def get_players(link):
 
 def get_player_trad(link, mode="both"):
 
-    # Return an html table of an NBA player's career regular season and
-    # playoffs stats.
+    '''Return a list of html tables off an NBA player's stats page.
+
+    link (str) -- URL to the player's career page
+    mode (str) -- 'season', 'playoffs', or 'both'. Determines what tables
+                  are returned.
+    '''
 
     if mode not in ["both", "season", "playoffs"]:
         raise ValueError("Invalid value for mode.")
@@ -187,15 +196,14 @@ def get_player_trad(link, mode="both"):
         finally:
             driver.quit()
 
-def create_empty_table(id):
+def create_empty_row(id):
 
     # Create empty table for players with no available stats, so that repeated
     # calls to these players do not incur Selenium bottlenecks.
 
     db = sqlite3.connect('data.db')
     cursor = db.cursor()
-    name = 'p' + str(id)
-    cursor.execute("CREATE TABLE IF NOT EXISTS %s" % name)
+    cursor.execute('''INSERT INTO tradstats(ID) VALUES(?)''', (id,))
 
 def scrape_player_trad(page, id, playoffs=False):
 
@@ -210,10 +218,10 @@ def scrape_player_trad(page, id, playoffs=False):
 
     db = sqlite3.connect('data.db')
     player_writer = db.cursor()
-    name = 'p' + str(id)
 
     try:
-        player_writer.execute('''CREATE TABLE %s(PLAYOFFS INTEGER)''' % name)
+        player_writer.execute('''CREATE TABLE tradstats(ID INTEGER, PLAYOFFS
+            INTEGER)''')
     except sqlite3.OperationalError:
         pass
     else:
@@ -224,15 +232,15 @@ def scrape_player_trad(page, id, playoffs=False):
                 tag = statistic
             file_string = str(tag).split('>')[1].split('<')[0]
             if file_string in ["Season", "TEAM"]:
-                player_writer.execute('''ALTER TABLE %s ADD %s
-                    TEXT''' % (name, file_string))
+                player_writer.execute('''ALTER TABLE tradstats ADD %s
+                    TEXT''' % file_string)
             else:
                 if '%' in file_string:
                     file_string = file_string.replace("%", "percent")
                 if '3' in file_string:
                     file_string = file_string.replace("3", "three")
-                player_writer.execute('''ALTER TABLE %s ADD %s
-                    NUMERIC''' % (name, file_string))
+                player_writer.execute('''ALTER TABLE tradstats ADD %s
+                    NUMERIC''' % file_string)
         db.commit()
 
     # Update table even if it already exists:
@@ -244,9 +252,8 @@ def scrape_player_trad(page, id, playoffs=False):
             if "player" in statistic["class"]:
                 if len(values) > 0:
                     entries.append(tuple(values))
-                values = [pcheck]
-                values.append(str(statistic.a['href']).split('=')[1].
-                    split('&')[0])
+                values = [id, pcheck]
+                values.append(statistic.a.string)
             elif "text" in statistic["class"]:
                 values.append(statistic.span.string)
         else:
@@ -257,7 +264,7 @@ def scrape_player_trad(page, id, playoffs=False):
                 values.append(float(statistic.string))
     if len(values) > 0:
         entries.append(tuple(values))
-    values = [pcheck]
+    values = [id, pcheck]
     for total in page.tfoot.find_all("td"):
         value = total.string
         if value in ["", "-"]:
@@ -268,15 +275,15 @@ def scrape_player_trad(page, id, playoffs=False):
 
     entries.append(tuple(values))
     place = ', '.join('?' * len(values))
-    player_writer.executemany('''INSERT INTO %s values (%s)''' %
-        (name, place), entries)
+    player_writer.executemany('''INSERT INTO tradstats values (%s)''' %
+        place, entries)
     db.commit()
     db.close()
 
 def scrub(text):
     if not isinstance(text, str):
         raise ValueError("Invalid input passed to scrub; expected str.")
-    bad_chars = [';', 'OR', ' ']
+    bad_chars = [';', 'OR ', ' ']
     if any(i in text for i in bad_chars):
         raise ValueError('''Invalid input passed for database query. Please
             don't hack me.''')

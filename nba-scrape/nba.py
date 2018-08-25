@@ -90,4 +90,8 @@ if __name__ == "__main__":
 
     league = NBA()
     begin = time.time()
-    league.get_player_by_id(2544).get_stat('or 1=1', '2004-05')
+    lebron = league.get_player_by_id(2544)
+    print(lebron.get_stat('TS%', '2012-13', playoffs=True))
+    print(lebron.get_stats(['FT%', '3P%'], '2015-18', mode="playoffs"))
+    print(lebron.get_all_stats(mode="playoffs"))
+    print(time.time() - begin)

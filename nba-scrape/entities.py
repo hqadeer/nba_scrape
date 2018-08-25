@@ -16,13 +16,17 @@ class Player:
             id (int) -- player ID number
         '''
 
-        self.id = id
+        self.id = int(id)
         self.table_name = 'p' + str(id)
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-        value = cursor.execute('''SELECT count(*) FROM sqlite_master WHERE
-            type='table' AND name = %s''' % ''.join(['"', self.table_name,
-            '"'])).fetchone()[0]
+
+        try:
+            value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
+                ID=?''', (self.id,))
+        except sqlite3.OperationalError:
+            value = 0
+
         db.close()
         if value == 0:
             url = "".join(["http://stats.nba.com/player/", str(id), '/career'])
@@ -32,7 +36,7 @@ class Player:
             if pages[1] is not None:
                 helpers.scrape_player_trad(pages[1], id, True)
             elif pages[0] is None:
-                helpers.create_empty_table(id)
+                helpers.create_empty_row(id)
         self.season_stats = {}
         self.playoffs_stats = {}
 
@@ -78,14 +82,13 @@ class Player:
                 value = (points / (2*(field_goals_attempted +
                     0.44 * free_throws_attempted)), )
             else:
-                if ';' in stat or ';' in year:
-                    raise ValueError("No semicolons allowed in inputs.")
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
                 try:
-                    cursor.execute('''SELECT ? FROM %s WHERE Season=? AND
-                        PLAYOFFS = %d''' % self.table_name, (str(stat),
-                        ''.join(['"', str(year), '"']), pvalue))
+                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=:id
+                        AND PLAYOFFS=:flip AND Season=:year''' % str(stat),
+                        {"id" : self.id, "flip" : pvalue, "year" :
+                        year})
                     value = cursor.fetchone()
                 except sqlite3.OperationalError:
                     raise InvalidStatError("%s does not exist for player %d"
@@ -126,11 +129,11 @@ class Player:
 
         for i, stat in enumerate(stats):
             stats[i] = ''.join(['"', stat.upper(), '"'])
-            if "3" in stat:
-                stats[i] = stat.replace("3", "three")
             if "%" in stats[i]:
-                stats[i] = stat.replace("%", "percent")
-            helpers.scrub(stats)
+                stats[i] = stats[i].replace("%", "percent")
+            if "3" in stats[i]:
+                stats[i] = stats[i].replace("3", "three")
+            helpers.scrub(stats[i])
 
         if "TSpercent" in stats:
             raise ValueError("Invalid stat for multi-stat queries: TS%")
@@ -141,8 +144,8 @@ class Player:
         if len(stats) < 1:
             raise ValueError("Please provide at least one stat.")
 
-        helpers.scrub(year_range)
         if year_range is not None and year_range.upper() != "CAREER":
+            helpers.scrub(year_range)
             years = year_range.split('-')
             begin_year = years[0]
             if int(begin_year[2:4]) < int(years[1]):
@@ -154,30 +157,39 @@ class Player:
                 seasons.append(''.join(['"', '-'.join([begin_year,
                 str(int(begin_year)+1)[2:4]]), '"']))
                 begin_year = str(int(begin_year) + 1)
-        elif year_range.upper() == "CAREER":
+        elif year_range is not None:
             seasons = ['"CAREER"']
 
+        stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
+
         try:
-            if year_range is None and mode.lower() == "both":
-                cursor.execute('''SELECT (%) FROM %s ORDER BY Season'''
-                    % (', '.join(stats), self.table_name))
-            elif year_range is None:
-                cursor.execute('''SELECT %s FROM %s WHERE PLAYOFFS = %d
-                    AND Season IN (%s) ORDER BY Season''' % (', '.join(stats),
-                    self.table_name, pvalue, ', '.join(seasons)))
-            if mode.lower() == "both":
-                cursor.execute('''SELECT (%s) FROM %s WHERE Season IN (%s)
-                    ORDER BY Season''' % (', '.join(stats),
-                    self.table_name, ', '.join(seasons)))
+            if year_range is None:
+                if mode.lower() == "both":
+                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
+                        ORDER BY Season''' % ', '.join(stats), (self.id,))
+                else:
+                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
+                        AND PLAYOFFS=? ORDER BY Season''' % ', '.join(stats),
+                        (self.id, pvalue))
             else:
-                cursor.execute('''SELECT %s FROM %s WHERE PLAYOFFS = %d
-                    AND Season IN (%s) ORDER BY Season''' % (', '.join(stats),
-                    self.table_name, pvalue, ', '.join(seasons)))
+                season_hold = ', '.join('?' * len(seasons))
+                if mode.lower() == "both":
+                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=? AND
+                        AND Season IN (%s) ORDER BY Season''' %
+                        (', '.join(stats), ', '.join(seasons)), (self.id,))
+                else:
+                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=? AND
+                        PLAYOFFS=? AND Season IN (%s) ORDER BY Season''' %
+                        (', '.join(stats), ', '.join(seasons)), (self.id,
+                        pvalue))
+
             temp = cursor.fetchall()
+
         finally:
             db.close()
+
         return(temp)
 
     def get_all_stats(self, mode="both"):
@@ -188,20 +200,27 @@ class Player:
                       stats are returned.
         '''
 
-        db = sqlite3.connect('data.db')
-        cursor = db.cursor()
-        if mode.lower() == "both":
-            cursor.execute('''SELECT * FROM %s''' % self.table_name)
-        elif mode.lower() == "playoffs":
-            cursor.execute('''SELECT * FROM %s WHERE playoffs = 1 ORDER BY
-                Season''' % self.table_name)
-        elif mode.lower() == "season":
-            cursor.execute('''SELECT * FROM %s WHERE playoffs = 0 ORDER BY
-                Season''' % self.table_name)
-        else:
-            raise ValueError("Invalid argument passed to 'mode'")
-        return cursor.fetchall()
+        try:
+            db = sqlite3.connect('data.db')
+            cursor = db.cursor()
+            if mode.lower() == "both":
+                cursor.execute('''SELECT * FROM tradstats WHERE id=? ORDER BY
+                    Season''', (self.id,))
+            elif mode.lower() == "playoffs":
+                cursor.execute('''SELECT * FROM tradstats WHERE id=? AND
+                    playoffs = 1 ORDER BY Season''', (self.id,))
+            elif mode.lower() == "season":
+                cursor.execute('''SELECT * FROM tradstats WHERE id=? AND
+                playoffs = 0 ORDER BY Season''', (self.id,))
+            else:
+                raise ValueError("Invalid argument passed to 'mode'")
 
+            temp = cursor.fetchall()
+
+        finally:
+            db.close()
+
+        return temp
 
 if __name__ == "__main__":
     lbj = Player(2544)
