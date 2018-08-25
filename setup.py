@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='nba-scrape',
-    version='0.11',
+    version='0.12',
     description='Python utility to easily scrape NBA stats',
     long_description=long_description,
     packages = setuptools.find_packages(),
@@ -17,4 +17,9 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    install_requires=[
+        'lxml',
+        'bs4',
+        'Selenium',
+    ]
 )
