@@ -12,6 +12,4 @@ A work-in-progress Python utility to easily scrape professional basketball data 
 
 4) Browser-agnostic; uses the best available browser or raises an error if no supported browser is available.
 
-### To Do:
-
-Write tests to check timing and correctness of code.
+5) Test suite in progress.
