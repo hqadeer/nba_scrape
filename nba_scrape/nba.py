@@ -1,5 +1,5 @@
 from nba_scrape.helpers import get_players
-from entities import Player
+from nba_scrape.entities import Player
 import os
 import sys
 import sqlite3
