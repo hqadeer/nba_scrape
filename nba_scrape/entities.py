@@ -1,9 +1,9 @@
 import os
 import errno
-import helpers
+import nba_scrape.helpers
 import time
 import sqlite3
-from nba_exceptions import InvalidStatError
+from nba_scrape.nba_exceptions import InvalidStatError
 import time
 
 class Player:
@@ -13,7 +13,7 @@ class Player:
     def __init__(self, id):
 
         ''' Build player table if it doesn't already exist
-        
+
             id (int) -- player ID number
         '''
 

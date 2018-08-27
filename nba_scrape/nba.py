@@ -1,8 +1,7 @@
-from helpers import get_players
+from nba_scrape.helpers import get_players
 from entities import Player
 import os
 import sys
-import helpers
 import sqlite3
 import time
 
