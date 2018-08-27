@@ -1,15 +1,25 @@
 from nba_scrape import NBA
+import unittest
 
-def get_stat_test():
+class TestEntities(unittest.TestCase):
 
-    '''Test the get_stat method of entities.py
-    '''
+    def test_get_stat(self):
 
-    magic = NBA.get_player('MaGiC JOHNSON')
-    assert magic.get_stat('asT', '1988-89') == 12.8
-    assert magic.get_stat('tOv', '1984-85') == 4.0
-    assert magic.get_stat('OREB', '1990-91', playoffs=True) == 1.2
-    assert magic.get_stat('GS', 'career', playoffs=True) == 186
+        '''Test the get_stat method of entities.py
+        '''
+
+        magic = NBA.get_player('MaGiC JOHNSON')
+        self.assertEqual(magic.get_stat('asT', '1988-89'), 12.8)
+        self.assertEqual(magic.get_stat('tOv', '1984-85'), 4.0)
+        self.assertEqual(magic.get_stat('OREB', '1990-91', playoffs=True), 1.2)
+        self.assertEqual(magic.get_stat('GS', 'career', playoffs=True), 186)
+        self.assertEqual(magic.get_stat('team', '1985-86'), "LAL")
+        self.assertEqual(magic.get_stat('pts', '2005-06'), None)
+        #self.assertRaises(magic.get_stat('unicorn', '1999-00'), )
+
+
+    def get_stats_test():
+        return True
 
 if __name__ == "__main__":
 
