@@ -1,5 +1,5 @@
 # Core instance
-from nba import NBA
+from nba_scrape.nba import NBA
 import helpers
 
 name = "nba-stats"
