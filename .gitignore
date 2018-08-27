@@ -5,4 +5,4 @@ geckodriver.log
 build/
 dist/
 nba_scrape.egg-info/
-nba-scrape/__pycache__/
+nba_scrape/__pycache__/

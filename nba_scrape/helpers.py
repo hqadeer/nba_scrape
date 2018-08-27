@@ -292,7 +292,7 @@ def scrape_player_trad(page, id, playoffs=False):
     db.close()
 
 def scrub(text):
-    
+
     '''Ensures against SQL injections for user-provided database queries.
 
     Checks against a list of malicious characters (given by bad_chars).
