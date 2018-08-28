@@ -62,7 +62,7 @@ class NBA:
                 % ''.join(['"', name, '"']))
             pair = cursor.fetchone()
             if pair is None:
-                raise AttributeError("No player with name: %s" % name)
+                raise AttributeError("No player with name: %s" % name.lower())
             db.close()
             self.players[pair[0]] = pair[1]
             id = pair[1]

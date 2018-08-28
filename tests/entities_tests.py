@@ -8,7 +8,8 @@ class TestEntities(unittest.TestCase):
         '''Test the get_stat method of entities.py
         '''
 
-        magic = NBA.get_player('MaGiC JOHNSON')
+        league = NBA()
+        magic = league.get_player('magic johnson')
         self.assertEqual(magic.get_stat('asT', '1988-89'), 12.8)
         self.assertEqual(magic.get_stat('tOv', '1984-85'), 4.0)
         self.assertEqual(magic.get_stat('OREB', '1990-91', playoffs=True), 1.2)
@@ -23,4 +24,5 @@ class TestEntities(unittest.TestCase):
 
 if __name__ == "__main__":
 
-    get_stat_test()
+    temp = TestEntities()
+    temp.test_get_stat()

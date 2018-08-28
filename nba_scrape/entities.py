@@ -1,6 +1,6 @@
 import os
 import errno
-import nba_scrape.helpers
+import nba_scrape.helpers as helpers
 import time
 import sqlite3
 from nba_scrape.nba_exceptions import InvalidStatError

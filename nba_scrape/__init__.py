@@ -1,7 +1,7 @@
 # Core instance
 from nba_scrape.nba import NBA
-import helpers
+import nba_scrape.helpers
 
-name = "nba-stats"
+name = "nba_scrape"
 
-helpers.detect_browser()
+nba_scrape.helpers.detect_browser()
