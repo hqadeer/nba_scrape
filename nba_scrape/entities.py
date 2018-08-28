@@ -45,6 +45,8 @@ class Player:
 
         Format input stat to account for capitalization.
         Compute TS% by recursively calling method for points, FGA, and FTA.
+        For players who were traded mid-season, return stats from the whole
+        season.
         Raise InvalidStatError if stat/year do not exist.
 
         stat (str) -- desired statistic; FGA, FTM, FG%, 3PM, PTS, AST, etc.
@@ -85,8 +87,8 @@ class Player:
                 cursor = db.cursor()
                 try:
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=:id
-                        AND PLAYOFFS=:flip AND Season=:year''' % str(stat),
-                        {"id" : self.id, "flip" : pvalue, "year" :
+                        AND PLAYOFFS=:flip AND Season=:year ORDER BY GP'''
+                        % str(stat), {"id" : self.id, "flip" : pvalue, "year" :
                         year})
                     value = cursor.fetchone()
                 except sqlite3.OperationalError:
@@ -107,7 +109,9 @@ class Player:
 
         '''Return a list of tuples of player stats
 
-        Can return a range of stats over a range of seasonsself.
+        Can return a range of stats over a range of seasons.
+        For players who were traded mid-season, return both total stats and
+        stats for each team.
 
         stats (list) -- stats desired. I.e. ['PTS', 'AST', 'REB']
         year_range (str) -- seasons desired. '2004-10' would return stats from
