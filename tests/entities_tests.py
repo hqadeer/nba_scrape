@@ -22,11 +22,11 @@ class TestEntities(unittest.TestCase):
             magic.get_stat('unicorn', '1999-00')
 
         mario = league.get_player('mario chalmers')
-        self.assertEqual(mario.get_stat('team', '2015-16') == 'TOT')
+        self.assertEqual(mario.get_stat('team', '2015-16'), 'TOT')
         self.assertEqual(mario.get_stat('FT%', 'career', playoffs=True), 74.2)
         self.assertEqual(mario.get_stat('GP', '2017-18'), 66)
         self.assertEqual(mario.get_stat('3p%', '2010-11', playoffs=True), 38.1)
-        self.assertEqual(mario.get_stat('fG%', '2017-18', playoffs=True), None)
+        self.assertEqual(mario.get_stat('fG%', '2017-18', playoffs=True), 5)
 
 
 
