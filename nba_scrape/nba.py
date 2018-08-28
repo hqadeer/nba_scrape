@@ -53,8 +53,9 @@ class NBA:
         name (str) -- name of the player desired, case-insensitive.
         '''
 
-        if name.lower() in self.players:
-            id = self.players[name.lower()]
+        name = name.lower()
+        if name in self.players:
+            id = self.players[name]
         else:
             db = sqlite3.connect('data.db')
             cursor = db.cursor()
@@ -62,7 +63,7 @@ class NBA:
                 % ''.join(['"', name, '"']))
             pair = cursor.fetchone()
             if pair is None:
-                raise AttributeError("No player with name: %s" % name.lower())
+                raise AttributeError("No player with name: %s" % name)
             db.close()
             self.players[pair[0]] = pair[1]
             id = pair[1]

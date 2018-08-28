@@ -97,12 +97,12 @@ def get_players(link):
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
         options.add_argument('user-agent=Kobe')
-        driver = webdriver.Chrome(chrome_options=options)
+        driver = webdriver.Chrome(options=options)
     elif browser == "firefox":
         options = webdriver.FirefoxOptions()
         options.add_argument('headless')
         options.add_argument('user-agent=Kobe')
-        driver = webdriver.Firefox(firefox_options=options)
+        driver = webdriver.Firefox(options=options)
     elif browser == "PhantomJS":
         driver = webdriver.PhantomJS()
     elif browser == "opera":
