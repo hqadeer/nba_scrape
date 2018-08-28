@@ -7,10 +7,18 @@ class TestEntities(unittest.TestCase):
     def test_get_stat(self):
 
         '''Test the get_stat method of entities.py
+
+        Specifically tests multiple instances, case insensitivity, None returns
+        for valid stats and invalid queries, and TS% queries, and
+        InvalidStatError raises for invalid stat queries.
+
+        Also tests players that were traded mid-season, players that have no
+        playoffs stats, and players that have null values for many stats because
+        they played before those were recorded.
         '''
 
         league = NBA()
-        magic = league.get_player('magic johnson')
+        magic = league.get_player('mAGIC johnson')
 
         self.assertEqual(magic.get_stat('asT', '1988-89'), 12.8)
         self.assertEqual(magic.get_stat('tOv', '1984-85'), 4.0)
@@ -21,7 +29,8 @@ class TestEntities(unittest.TestCase):
         with self.assertRaises(nba_exceptions.InvalidStatError):
             magic.get_stat('unicorn', '1999-00')
 
-        mario = league.get_player('mario chalmers')
+        mario = league.get_player('mario chALmers')
+
         self.assertEqual(mario.get_stat('team', '2015-16'), 'TOT')
         self.assertEqual(mario.get_stat('FT%', 'career', playoffs=True), 74.2)
         self.assertEqual(mario.get_stat('GP', '2017-18'), 66)
@@ -29,7 +38,9 @@ class TestEntities(unittest.TestCase):
         self.assertEqual(mario.get_stat('fG%', '2017-18', playoffs=True), 5)
         self.assertEqual(mario.get_stat('ft%', '2015-16'), 83.2)
 
+        boogie = league.get_player('Demarcus Cousins')
 
+        self.assertEqual
 
     def test_get_stats(self):
         self.assertEqual(2, 2)
