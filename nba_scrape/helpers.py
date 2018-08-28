@@ -4,8 +4,8 @@ import selenium.common.exceptions as selexc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from bs4 import BeautifulSoup
 from nba_scrape.nba_exceptions import InvalidBrowserError
+from bs4 import BeautifulSoup
 import sqlite3
 import traceback
 import sys

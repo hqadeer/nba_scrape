@@ -66,8 +66,9 @@ class NBA:
                 raise AttributeError("No player with name: %s" % name)
             db.close()
             self.players[pair[0]] = pair[1]
-            id = pair[1]
-        return Player(id)
+            id_number = pair[1]
+        new_player = Player(id_number)
+        return new_player
 
     def get_player_by_id(self, id):
 
@@ -81,7 +82,7 @@ class NBA:
 
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-        cursor.execute('''SELECT * FROM players WHERE id = %d''' % int(id))
+        cursor.execute('''SELECT * FROM players WHERE id = ?''', (int(id),))
         if cursor.fetchone() is None:
             raise AttributeError("No player with id: %s" % str(id))
         return Player(id)
@@ -107,9 +108,3 @@ class NBA:
 if __name__ == "__main__":
 
     league = NBA()
-    begin = time.time()
-    lebron = league.get_player_by_id(2544)
-    print(lebron.get_stat('TS%', '2012-13', playoffs=True))
-    print(lebron.get_stats(['FT%', '3P%'], '2015-18', mode="playoffs"))
-    print(lebron.get_all_stats(mode="playoffs"))
-    print(time.time() - begin)

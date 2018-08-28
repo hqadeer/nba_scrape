@@ -1,10 +1,8 @@
 import os
 import errno
-import nba_scrape.helpers as helpers
-import time
 import sqlite3
 from nba_scrape.nba_exceptions import InvalidStatError
-import time
+import nba_scrape.helpers as helpers
 
 class Player:
 
@@ -18,26 +16,26 @@ class Player:
         '''
 
         self.id = int(id)
-        self.table_name = 'p' + str(id)
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
 
         try:
             value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
-                ID=?''', (self.id,))
-        except sqlite3.OperationalError:
+                ID=?''', (self.id,)).fetchone()[0]
+        except (sqlite3.OperationalError, IndexError) as exc:
             value = 0
 
         db.close()
         if value == 0:
-            url = "".join(["http://stats.nba.com/player/", str(id), '/career'])
+            url = "".join(["http://stats.nba.com/player/", str(self.id),
+                '/career'])
             pages = helpers.get_player_trad(url)
             if pages[0] is not None:
-                helpers.scrape_player_trad(pages[0], id, False)
+                helpers.scrape_player_trad(pages[0], self.id, False)
             if pages[1] is not None:
-                helpers.scrape_player_trad(pages[1], id, True)
+                helpers.scrape_player_trad(pages[1], self.id, True)
             elif pages[0] is None:
-                helpers.create_empty_row(id)
+                helpers.create_empty_row(self.id)
         self.season_stats = {}
         self.playoffs_stats = {}
 
@@ -226,7 +224,3 @@ class Player:
 if __name__ == "__main__":
 
     lbj = Player(2544)
-    begin1 = time.time()
-    print(lbj.get_stat('TS%', 'career', playoffs=True))
-    print(lbj.get_stats(['pts', 'ast', 'reb'], '2003-04'))
-    print(time.time() - begin1)
