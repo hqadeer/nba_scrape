@@ -6,3 +6,4 @@ build/
 dist/
 nba_scrape.egg-info/
 nba_scrape/__pycache__/
+**/data.db-journal

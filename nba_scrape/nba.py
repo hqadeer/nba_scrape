@@ -55,16 +55,18 @@ class NBA:
 
         name = name.lower()
         if name in self.players:
-            id = self.players[name]
+            id_number = self.players[name]
         else:
-            db = sqlite3.connect('data.db')
-            cursor = db.cursor()
-            cursor.execute('''SELECT * FROM players WHERE name = %s'''
-                % ''.join(['"', name, '"']))
-            pair = cursor.fetchone()
+            try:
+                db = sqlite3.connect('data.db')
+                cursor = db.cursor()
+                cursor.execute('''SELECT * FROM players WHERE name = %s'''
+                    % ''.join(['"', name, '"']))
+                pair = cursor.fetchone()
+            finally:
+                db.close()
             if pair is None:
                 raise AttributeError("No player with name: %s" % name)
-            db.close()
             self.players[pair[0]] = pair[1]
             id_number = pair[1]
         new_player = Player(id_number)

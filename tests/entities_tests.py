@@ -15,6 +15,9 @@ class TestEntities(unittest.TestCase):
         Also tests players that were traded mid-season, players that have no
         playoffs stats, null players, and players that have null values for
         many stats because they played before those were recorded.
+
+        By extension, this function also tests the nba module's constructor and
+        get_player and get_players functions.
         '''
 
         league = NBA()
@@ -35,7 +38,7 @@ class TestEntities(unittest.TestCase):
         self.assertEqual(mario.get_stat('FT%', 'career', playoffs=True), 74.2)
         self.assertEqual(mario.get_stat('GP', '2017-18'), 66)
         self.assertEqual(mario.get_stat('3p%', '2010-11', playoffs=True), 38.1)
-        self.assertEqual(mario.get_stat('fG%', '2017-18', playoffs=True), 5)
+        self.assertEqual(mario.get_stat('fG%', '2017-18', playoffs=True), None)
         self.assertEqual(mario.get_stat('ft%', '2015-16'), 83.2)
 
         boogie = league.get_player('Demarcus Cousins')
@@ -49,8 +52,23 @@ class TestEntities(unittest.TestCase):
 
         self.assertEqual(booker.get_stat('Blk', '2017-18'), 0.3)
         self.assertEqual(booker.get_stat('ast', 'career', playoffs=True), None)
+        self.assertEqual(booker.get_stat('dreb', '2002-2342'), None)
         with self.assertRaises(nba_exceptions.InvalidStatError):
             booker.get_stat('unicorn', '2018-19', playoffs=True)
+
+        kaj = league.get_player_by_id(76003)
+        self.assertEqual(kaj.get_stat('aGe', '1987-88'), 41)
+        self.assertEqual(kaj.get_stat('age', 'career'), None)
+        self.assertEqual(kaj.get_stat('3PM', '1985-86'), 0)
+        self.assertEqual(kaj.get_stat('3pm', '1975-76'), None)
+        self.assertEqual(kaj.get_stat('blk', '1972-73'), None)
+        self.assertEqual(kaj.get_stat('tov', '1976-77'), None)
+
+        no_stats = league.get_player('jaylen adams')
+        with self.assertRaises(nba_exceptions.InvalidStatError):
+            no_stats.get_stat('pts', '1985-86')
+        with self.assertRaises(nba_exceptions.InvalidStatError):
+            no_stats.get_stat('ast', '1999-00', playoffs=True)
 
     def test_get_stats(self):
         self.assertEqual(2, 2)
