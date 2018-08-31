@@ -15,14 +15,12 @@ class TestEntities(unittest.TestCase):
         Also tests players that were traded mid-season, players that have no
         playoffs stats, null players, and players that have null values for
         many stats because they played before those were recorded.
-
-        By extension, this function also tests the nba module's constructor and
-        get_player and get_players functions.
         '''
 
         league = NBA()
         magic = league.get_player('mAGIC johnson')
 
+        # Standard stat tests for a retired player.
         self.assertEqual(magic.get_stat('asT', '1988-89'), 12.8)
         self.assertEqual(magic.get_stat('tOv', '1984-85'), 4.0)
         self.assertEqual(magic.get_stat('OREB', '1990-91', playoffs=True), 1.2)
@@ -34,6 +32,7 @@ class TestEntities(unittest.TestCase):
 
         mario = league.get_player('mario chALmers')
 
+        # Standard stat tests for an active player.
         self.assertEqual(mario.get_stat('team', '2015-16'), 'TOT')
         self.assertEqual(mario.get_stat('FT%', 'career', playoffs=True), 74.2)
         self.assertEqual(mario.get_stat('GP', '2017-18'), 66)
@@ -43,6 +42,7 @@ class TestEntities(unittest.TestCase):
 
         boogie = league.get_player('Demarcus Cousins')
 
+        # Checking playoff stats of a player who's never been to the playoffs.
         self.assertEqual(boogie.get_stat('pts', 'career', playoffs=True), None)
         self.assertEqual(boogie.get_stat('pf', '2016-17', playoffs=True), None)
         with self.assertRaises(nba_exceptions.InvalidStatError):
@@ -50,6 +50,7 @@ class TestEntities(unittest.TestCase):
 
         booker = league.get_player('deVIN booker')
 
+        # Same as above
         self.assertEqual(booker.get_stat('Blk', '2017-18'), 0.3)
         self.assertEqual(booker.get_stat('ast', 'career', playoffs=True), None)
         self.assertEqual(booker.get_stat('dreb', '2002-2342'), None)
@@ -57,6 +58,8 @@ class TestEntities(unittest.TestCase):
             booker.get_stat('unicorn', '2018-19', playoffs=True)
 
         kaj = league.get_player_by_id(76003)
+
+        # Checking untracked stats of a retired player.
         self.assertEqual(kaj.get_stat('aGe', '1987-88'), 41)
         self.assertEqual(kaj.get_stat('age', 'career'), None)
         self.assertEqual(kaj.get_stat('3PM', '1985-86'), 0)
@@ -64,13 +67,24 @@ class TestEntities(unittest.TestCase):
         self.assertEqual(kaj.get_stat('blk', '1972-73'), None)
         self.assertEqual(kaj.get_stat('tov', '1976-77'), None)
 
+        # Checking stats of a player with no stats.
         no_stats = league.get_player('jaylen adams')
+        self.assertEqual(no_stats.get_stat('pts', '1985-86'), None)
+        self.assertEqual(no_stats.get_stat('ast', '1999-00', playoffs=True),
+            None)
         with self.assertRaises(nba_exceptions.InvalidStatError):
-            no_stats.get_stat('pts', '1985-86')
-        with self.assertRaises(nba_exceptions.InvalidStatError):
-            no_stats.get_stat('ast', '1999-00', playoffs=True)
+            no_stats.get_stat('blobby', '2005-06')
+
+        # Checking TS% queries.
 
     def test_get_stats(self):
+
+        '''Test the get_stats method of entities.py
+
+        Same tests as above (except TS% queries), but all of a player's
+        requested stats are obtained in one query.
+        '''
+
         self.assertEqual(2, 2)
 
 if __name__ == "__main__":

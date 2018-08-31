@@ -203,13 +203,11 @@ def create_empty_row(id):
     Used as a placeholder for listed players with no stats. This way, calls to
     these players do not incur Selenium bottlenecks.
     '''
-    try:
-        db = sqlite3.connect('data.db')
-        cursor = db.cursor()
-        cursor.execute('''INSERT INTO tradstats(ID) VALUES(?)''', (id,))
-        db.commit()
-    finally:
-        db.close()
+    db = sqlite3.connect('data.db')
+    cursor = db.cursor()
+    cursor.execute('''INSERT INTO tradstats(ID) VALUES(?)''', (id,))
+    db.commit()
+    db.close()
 
 def scrape_player_trad(page, id, playoffs=False):
 
