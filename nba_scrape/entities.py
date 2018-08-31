@@ -5,11 +5,10 @@ from nba_scrape.nba_exceptions import InvalidStatError
 import nba_scrape.helpers as helpers
 
 class Player:
-
     '''Class representing an NBA player.'''
 
-    def __init__(self, id):
 
+    def __init__(self, id):
         ''' Build player table if it doesn't already exist
 
             id (int) -- player ID number
@@ -40,7 +39,6 @@ class Player:
         self.playoffs_stats = {}
 
     def get_stat(self, stat, year='career', playoffs=False):
-
         '''Return instance player's specified stat for the specified year.
 
         Format input stat to account for capitalization.
@@ -106,7 +104,6 @@ class Player:
             return value[0]
 
     def get_stats(self, stats, year_range=None, mode="season"):
-
         '''Return a list of tuples of player stats
 
         Can return a range of stats over a range of seasons.
@@ -196,7 +193,6 @@ class Player:
         return(temp)
 
     def get_all_stats(self, mode="both"):
-
         '''Query database to return list of tuples of all player stats.
 
         mode (str) -- 'season', 'playoffs', or 'both'. Determines what type of

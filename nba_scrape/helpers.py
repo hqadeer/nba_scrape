@@ -13,7 +13,6 @@ import sys
 browser = "chrome"
 
 def detect_browser():
-
     '''Detect user's browser and set browser to be the best available one.
 
     Raise InvalidBrowserError if no supported browser is found.
@@ -71,21 +70,20 @@ def detect_browser():
     except selexc.SessionNotCreatedException:
         driver.quit()
         print("To use Safari for scraping, enable 'Allow Remote",
-            "Automation' option in Safari's Develop menu. Safari does not",
-            "support headless mode, so consider installing Chrome or Firefox",
-            file=sys.stderr)
+              "Automation' option in Safari's Develop menu. Safari does not",
+              "support headless mode, so consider installing Chrome or Firefox",
+              file=sys.stderr)
     else:
         driver.quit()
         browser = "safari"
         print("Using Safari. Safari does not support headless mode, so",
-            "consider installing Chrome or Firefox.", file=sys.stderr)
+              "consider installing Chrome or Firefox.", file=sys.stderr)
         return
 
     raise InvalidBrowserError('''No supported browsers found. Install Chrome or
         Firefox for optimal usage.''')
 
 def get_players(link):
-
     ''' Return BeautifulSoup page of stats.nba.com's list of players.
 
     link -- URL to NBA's list of all players.
@@ -118,7 +116,6 @@ def get_players(link):
     return soup
 
 def get_player_trad(link, mode="both"):
-
     '''Return a list of html tables off an NBA player's stats page.
 
     link (str) -- URL to the player's career page
@@ -157,7 +154,7 @@ def get_player_trad(link, mode="both"):
                 EC.presence_of_element_located((By.TAG_NAME, "nba-stat-table"))
             )
             soup = BeautifulSoup(html.get_attribute('innerHTML'),
-                features='lxml')
+                                 features='lxml')
             if (soup.find_all("div", class_="nba-stat-table__caption")[0]
                     .span.string) == "Career Regular Season Stats":
                 return soup.table
@@ -170,13 +167,13 @@ def get_player_trad(link, mode="both"):
             returns = [None, None]
             try:
                 htmls = WebDriverWait(driver, 5).until(
-                    EC.presence_of_all_elements_located((By.TAG_NAME,
-                        "nba-stat-table"))
+                    EC.presence_of_all_elements_located(
+                            (By.TAG_NAME, "nba-stat-table"))
                 )
             except TimeoutException:
                 return returns
             soup = BeautifulSoup(htmls[1].get_attribute('innerHTML'),
-                features='lxml')
+                                 features='lxml')
             if (soup.find_all("div", class_="nba-stat-table__caption")[0]
                     .span.string) == "Career Playoffs Stats":
                 if mode.lower() == "playoffs":
@@ -186,7 +183,7 @@ def get_player_trad(link, mode="both"):
 
             if mode.lower() == "both":
                 soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
-                    features='lxml')
+                                     features='lxml')
                 if (soup.find_all("div", class_="nba-stat-table__caption")[0]
                         .span.string) == "Career Regular Season Stats":
                     returns[0] = soup.table
@@ -197,12 +194,12 @@ def get_player_trad(link, mode="both"):
             driver.quit()
 
 def create_empty_row(id):
-
     '''Creates empty row in tradstats table.
 
     Used as a placeholder for listed players with no stats. This way, calls to
     these players do not incur Selenium bottlenecks.
     '''
+
     db = sqlite3.connect('data.db')
     cursor = db.cursor()
     cursor.execute('''INSERT INTO tradstats(ID) VALUES(?)''', (id,))
@@ -210,7 +207,6 @@ def create_empty_row(id):
     db.close()
 
 def scrape_player_trad(page, id, playoffs=False):
-
     '''Reads player data off an html page and add it to a database table.
 
     Creates database table for a player with appropriate headers if it doesn't
@@ -218,11 +214,11 @@ def scrape_player_trad(page, id, playoffs=False):
 
     page (BeautifulSoup) -- html page to be read by the method.
     id (int) -- id of the player being read
-    playoffs (bool) -- specifies whether playoff or regular season stats will be
-    added to the database.
+    playoffs (bool) -- specifies whether playoff or regular season stats will
+    be added to the database.
     '''
 
-    if playoffs == False:
+    if not playoffs:
         pcheck = 0
     else:
         pcheck = 1
@@ -288,12 +284,11 @@ def scrape_player_trad(page, id, playoffs=False):
     entries.append(tuple(values))
     place = ', '.join('?' * len(values))
     player_writer.executemany('''INSERT INTO tradstats values (%s)''' %
-        place, entries)
+                              place, entries)
     db.commit()
     db.close()
 
 def scrub(text):
-
     '''Ensures against SQL injections for user-provided database queries.
 
     Checks against a list of malicious characters (given by bad_chars).

@@ -5,7 +5,6 @@ import unittest
 class TestEntities(unittest.TestCase):
 
     def test_get_stat(self):
-
         '''Test the get_stat method of entities.py
 
         Specifically tests multiple instances, case insensitivity, None returns
@@ -83,7 +82,6 @@ class TestEntities(unittest.TestCase):
             - .585) < .2)
 
     def test_get_stats(self):
-
         '''Test the get_stats method of entities.py
 
         Same tests as above (except TS% queries), but all of a player's

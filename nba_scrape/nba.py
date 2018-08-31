@@ -6,11 +6,10 @@ import sqlite3
 import time
 
 class NBA:
-
     '''Core class by which NBA stats can be accessed.'''
 
-    def __init__(self, update=False):
 
+    def __init__(self, update=False):
         '''Initializes list of NBA players to database if not already present
 
         update (bool) -- If true, init will re-initialize the list of players
@@ -44,7 +43,6 @@ class NBA:
         db.close()
 
     def get_player(self, name):
-
         '''Returns a Player object based on the given name.
 
         If the player is not found in the database's list of players, an
@@ -73,7 +71,6 @@ class NBA:
         return new_player
 
     def get_player_by_id(self, id):
-
         '''Returns a player object based on the given ID.
 
         Raises an AttributeError if the provided ID does not correspond to a
@@ -90,7 +87,6 @@ class NBA:
         return Player(id)
 
     def load_all_players(self):
-
         '''Loads all NBA players to local database.
 
         WARNING: This takes multiple hours to complete and will use a non-
