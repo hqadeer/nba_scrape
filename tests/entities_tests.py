@@ -13,8 +13,8 @@ class TestEntities(unittest.TestCase):
         InvalidStatError raises for invalid stat queries.
 
         Also tests players that were traded mid-season, players that have no
-        playoffs stats, and players that have null values for many stats because
-        they played before those were recorded.
+        playoffs stats, null players, and players that have null values for
+        many stats because they played before those were recorded.
         '''
 
         league = NBA()
@@ -40,7 +40,17 @@ class TestEntities(unittest.TestCase):
 
         boogie = league.get_player('Demarcus Cousins')
 
-        self.assertEqual
+        self.assertEqual(boogie.get_stat('pts', 'career', playoffs=True), None)
+        self.assertEqual(boogie.get_stat('pf', '2016-17', playoffs=True), None)
+        with self.assertRaises(nba_exceptions.InvalidStatError):
+            boogie.get_stat('unicorn', '2017-18', playoffs=True)
+
+        booker = league.get_player('deVIN booker')
+
+        self.assertEqual(booker.get_stat('Blk', '2017-18'), 0.3)
+        self.assertEqual(booker.get_stat('ast', 'career', playoffs=True), None)
+        with self.assertRaises(nba_exceptions.InvalidStatError):
+            booker.get_stat('unicorn', '2018-19', playoffs=True)
 
     def test_get_stats(self):
         self.assertEqual(2, 2)

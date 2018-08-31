@@ -87,7 +87,7 @@ class Player:
                 cursor = db.cursor()
                 try:
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=:id
-                        AND PLAYOFFS=:flip AND Season=:year ORDER BY GP'''
+                        AND PLAYOFFS=:flip AND Season=:year ORDER BY GP DESC'''
                         % str(stat), {"id" : self.id, "flip" : pvalue, "year" :
                         year})
                     value = cursor.fetchone()
