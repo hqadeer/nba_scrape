@@ -76,13 +76,18 @@ class TestEntities(unittest.TestCase):
             no_stats.get_stat('blobby', '2005-06')
 
         # Checking TS% queries.
+        lebron = league.get_player('lebron james')
+        self.assertTrue(abs(lebron.get_stat('ts%', '2017-18') - .621) < .2)
+        self.assertTrue(abs(lebron.get_stat('ts%', '2013-14') - .649) < .2)
+        self.assertTrue(abs(lebron.get_stat('ts%', '2015-16', playoffs=True)
+            - .585) < .2)
 
     def test_get_stats(self):
 
         '''Test the get_stats method of entities.py
 
         Same tests as above (except TS% queries), but all of a player's
-        requested stats are obtained in one query.
+        requested stats are obtained in one query. Also uses different players.
         '''
 
         self.assertEqual(2, 2)
