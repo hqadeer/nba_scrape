@@ -77,7 +77,7 @@ class Player:
                     send_mode = "playoffs"
                 points, fga, fta = (self.get_stats(['PTS', 'FGA', 'FTA'], year,
                                     mode=send_mode))[0]
-                value = (points / (2 * fga + 0.44 * fta))
+                value = [points / (2 * fga + 0.44 * fta)]
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
@@ -116,6 +116,9 @@ class Player:
                             returning stats from all seasons (and overall
                             averages).
         mode (str) -- must be 'season', 'playoffs', or 'both'.
+
+        Stats are returned in the order specified, from least to most recent season
+        specified. "Career" is counted as the most recent season.
         '''
 
         pvalues = []
@@ -230,12 +233,12 @@ class Player:
             else:
                 raise ValueError("Invalid argument passed to 'mode'")
 
-            temp = cursor.fetchall()
+            stats = cursor.fetchall()
 
         finally:
             db.close()
 
-        return temp
+        return stats
 
 if __name__ == "__main__":
 

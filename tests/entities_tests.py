@@ -141,7 +141,8 @@ class TestEntities(unittest.TestCase):
         years_a = ['2008-09', '2009-10', '2010-11']
         self.assertEqual(Player.get_year_range('2008-11', years_a))
 
-        years_b = ['1995-96', '1996-97', '1997-98', '1998-99', '1999-00', '2000-01']
+        years_b = ['1995-96', '1996-97', '1997-98', '1998-99', '1999-00',
+                   '2000-01']
         self.assertEqual(Player.get_year_range('1995-01', years_b))
         self.assertEqual(Player.get_year_range(None), None)
         self.assertEqual(Player.get_year_range('CArEEr'), 'Career')

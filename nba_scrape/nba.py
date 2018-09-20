@@ -38,9 +38,35 @@ class NBA:
 
         cursor.execute('''CREATE TABLE players(name TEXT, id INTEGER)''')
         cursor.executemany('''INSERT INTO players (name, id) values (?, ?)''',
-            names)
+                           names)
         db.commit()
         db.close()
+
+    def get_all_player_names(self):
+        '''Return a list of all player names.'''
+
+        try:
+            db = sqlite3.connect('data.db')
+            cursor = db.cursor()
+            cursor.execute('''SELECT name FROM players''')
+            names = cursor.fetchall()
+        finally:
+            db.close()
+
+        return names
+
+    def get_all_player_ids(self):
+        '''Return a list of all player ids'''
+
+        try:
+            db = sqlite3.connect('data.db')
+            cursor = db.cursor()
+            cursor.execute('''SELECT id FROM players''')
+            ids = cursor.fetchall()
+        finally:
+            db.close()
+
+        return ids
 
     def get_player(self, name):
         '''Returns a Player object based on the given name.
@@ -85,6 +111,14 @@ class NBA:
         if cursor.fetchone() is None:
             raise AttributeError("No player with id: %s" % str(id))
         return Player(id)
+
+    def load_players(self, players):
+        '''Load all specified players to database.
+
+        players (list) -- list of player names (strings) to be loaded
+        '''
+        for player in players:
+            temp = self.get_player(player)
 
     def load_all_players(self):
         '''Loads all NBA players to local database.
