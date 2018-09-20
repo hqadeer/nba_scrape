@@ -75,8 +75,8 @@ class Player:
                     send_mode = "season"
                 else:
                     send_mode = "playoffs"
-                points, field_goals_attempted, free_throws_attempted = (
-                    self.get_stats(['PTS', 'FGA', 'FTA'], year,
+                points, field_goals_attempted, free_throws_attempted =
+                    (self.get_stats(['PTS', 'FGA', 'FTA'], year,
                     mode=send_mode))[0]
                 value = (points / (2*(field_goals_attempted +
                     0.44 * free_throws_attempted)), )
@@ -85,13 +85,13 @@ class Player:
                 cursor = db.cursor()
                 try:
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=:id
-                        AND PLAYOFFS=:flip AND Season=:year ORDER BY GP DESC'''
-                        % str(stat), {"id" : self.id, "flip" : pvalue, "year" :
-                        year})
+                                   AND PLAYOFFS=:flip AND Season=:year ORDER
+                                   BY GP DESC''' % str(stat), {"id" : self.id,
+                                   "flip" : pvalue, "year" : year})
                     value = cursor.fetchone()
                 except sqlite3.OperationalError:
                     raise InvalidStatError("%s does not exist for player %d"
-                        % (stat, self.id))
+                                           % (stat, self.id))
                 finally:
                     db.close()
             if value is None:
@@ -151,22 +151,24 @@ class Player:
             if seasons is None:
                 if mode.lower() == "both":
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
-                        ORDER BY Season''' % ', '.join(stats), (self.id,))
+                                   ORDER BY PLAYOFFS, Season''' %
+                                   ', '.join(stats), (self.id,))
                 else:
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
-                        AND PLAYOFFS=? ORDER BY Season''' % ', '.join(stats),
-                        (self.id, pvalue))
+                                   AND PLAYOFFS=? ORDER BY Season''' %
+                                   ', '.join(stats), (self.id, pvalue))
             else:
                 season_hold = ', '.join('?' * len(seasons))
                 if mode.lower() == "both":
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=? AND
-                        AND Season IN (%s) ORDER BY Season''' %
-                        (', '.join(stats), ', '.join(seasons)), (self.id,))
+                                   AND Season IN (%s) ORDER BY PLAYOFFS,
+                                   Season''' % (', '.join(stats),
+                                   ', '.join(seasons)), (self.id,))
                 else:
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=? AND
-                        PLAYOFFS=? AND Season IN (%s) ORDER BY Season''' %
-                        (', '.join(stats), ', '.join(seasons)), (self.id,
-                        pvalue))
+                                   PLAYOFFS=? AND Season IN (%s) ORDER BY
+                                   Season''' % (', '.join(stats),
+                                   ', '.join(seasons)), (self.id, pvalue))
 
             temp = cursor.fetchall()
         except sqlite3.OperationalError as exc:

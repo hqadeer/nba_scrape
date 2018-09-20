@@ -103,6 +103,7 @@ class TestEntities(unittest.TestCase):
                          mode='playoffs'), playoff_stats)
 
         # Test season and playoff stats together
+        both_stats = []
 
         # Test with seasons parameter as 'career'
 
@@ -111,6 +112,7 @@ class TestEntities(unittest.TestCase):
         # Test with some none values on old player
 
         # Test with some invalid seasons
+
 
         #self.assertEqual(butler.get_stats(['PTS'], ))
 
