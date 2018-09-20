@@ -94,8 +94,8 @@ class TestEntities(unittest.TestCase):
         # Test season mode (default)
         butler = league.get_player('jimmy butler')
         season_stats = [('CHI', 1.4, 0.8), ('CHI', 2.6, 1.5), ('CHI', 3.3, 1.4)]
-        self.assertEqual(butler.get_stats(['TEAM', 'AST', 'TOV'], '2012-15',
-                         season_stats))
+        self.assertEqual(butler.get_stats(['TEAM', 'AST', 'TOV'], '2012-15'),
+                         season_stats)
 
         # Test playoffs mode
         playoff_stats = [(23, 12, 12), (24, 5, 5), (25, 12, 12)]
@@ -138,14 +138,17 @@ class TestEntities(unittest.TestCase):
     def test_get_year_range(self):
         '''Test the get_year_range method of the Player class in entities.py'''
 
+        league = NBA()
+        kobe = league.get_player('kobe bryant')
+
         years_a = ['2008-09', '2009-10', '2010-11']
-        self.assertEqual(Player.get_year_range('2008-11', years_a))
+        self.assertEqual(kobe.get_year_range('2008-11'), years_a)
 
         years_b = ['1995-96', '1996-97', '1997-98', '1998-99', '1999-00',
                    '2000-01']
-        self.assertEqual(Player.get_year_range('1995-01', years_b))
-        self.assertEqual(Player.get_year_range(None), None)
-        self.assertEqual(Player.get_year_range('CArEEr'), 'Career')
+        self.assertEqual(kobe.get_year_range('1995-01', years_b))
+        self.assertEqual(kobe.get_year_range(None), None)
+        self.assertEqual(kobe.get_year_range('CArEEr'), 'Career')
 
 
 if __name__ == "__main__":

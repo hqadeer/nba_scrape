@@ -117,8 +117,8 @@ class Player:
                             averages).
         mode (str) -- must be 'season', 'playoffs', or 'both'.
 
-        Stats are returned in the order specified, from least to most recent season
-        specified. "Career" is counted as the most recent season.
+        Stats are returned in the order specified, from least to most recent
+        season specified. "Career" is counted as the most recent season.
         '''
 
         pvalues = []
@@ -175,7 +175,7 @@ class Player:
         except sqlite3.OperationalError as exc:
             traceback.print_exc()
             raise InvalidStatError("Error occurred during database retrieval."
-                                   + "An invalid stat was likely passed.")
+                                   + " An invalid stat was likely passed.")
         finally:
             db.close()
 
@@ -202,11 +202,11 @@ class Player:
                 end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
             seasons = []
             while int(begin_year) < int(end_year):
-                seasons.append(''.join(['"', '-'.join([begin_year,
-                str(int(begin_year)+1)[2:4]]), '"']))
+                seasons.append('"' + '-'.join([begin_year,
+                               str(int(begin_year)+1)[2:4]]) + '"')
                 begin_year = str(int(begin_year) + 1)
         elif year_range.upper() == "CAREER":
-            seasons = ['Career']
+            seasons = ['"CAREER"']
         else:
             return None
         return seasons
