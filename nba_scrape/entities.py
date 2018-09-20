@@ -1,5 +1,5 @@
 import os
-import errno
+import traceback
 import sqlite3
 from nba_scrape.nba_exceptions import InvalidStatError
 import nba_scrape.helpers as helpers
@@ -104,7 +104,8 @@ class Player:
             return value[0]
 
     def get_stats(self, stats, year_range=None, mode="season"):
-        '''Return a list of tuples of player stats
+        '''Return a list of tuples of player stats.
+        More efficient than repeatedly calling get_stat
 
         Can return a range of stats over a range of seasons.
         For players who were traded mid-season, return both total stats and
@@ -168,7 +169,10 @@ class Player:
                         pvalue))
 
             temp = cursor.fetchall()
-
+        except sqlite3.OperationalError as exc:
+            traceback.print_exc()
+            raise InvalidStatError("Error occurred during database retrieval."
+                                   + "An invalid stat was likely passed.")
         finally:
             db.close()
 
@@ -199,7 +203,7 @@ class Player:
                 str(int(begin_year)+1)[2:4]]), '"']))
                 begin_year = str(int(begin_year) + 1)
         elif year_range.upper() == "CAREER":
-            seasons = ['"CAREER"']
+            seasons = ['Career']
         else:
             return None
         return seasons
