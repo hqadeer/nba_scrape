@@ -75,11 +75,9 @@ class Player:
                     send_mode = "season"
                 else:
                     send_mode = "playoffs"
-                points, field_goals_attempted, free_throws_attempted =
-                    (self.get_stats(['PTS', 'FGA', 'FTA'], year,
-                    mode=send_mode))[0]
-                value = (points / (2*(field_goals_attempted +
-                    0.44 * free_throws_attempted)), )
+                points, fga, fta = (self.get_stats(['PTS', 'FGA', 'FTA'], year,
+                                    mode=send_mode))[0]
+                value = (points / (2 * fga + 0.44 * fta))
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
