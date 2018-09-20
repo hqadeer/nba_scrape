@@ -88,7 +88,12 @@ class TestEntities(unittest.TestCase):
         requested stats are obtained in one query. Also uses different players.
         '''
 
-        self.assertEqual(2, 2)
+        league = NBA()
+
+        butler = league.get_player('jimmy butler')
+        stats = butler.get_stats(['AST', 'TOV', 'OREB'], '2012-16')
+        print(stats)
+
 
 if __name__ == "__main__":
 

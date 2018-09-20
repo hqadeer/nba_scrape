@@ -138,34 +138,16 @@ class Player:
         if "TSpercent" in stats:
             raise ValueError("Invalid stat for multi-stat queries: TS%")
 
-        if (year_range is not None and year_range.upper() != "CAREER" and
-                (len(year_range) != 7 or "-" not in year_range)):
-            raise ValueError("Invalid year range provided: %s" % year_range)
+        seasons = get_year_range(year_range)
         if len(stats) < 1:
             raise ValueError("Please provide at least one stat.")
-
-        if year_range is not None and year_range.upper() != "CAREER":
-            helpers.scrub(year_range)
-            years = year_range.split('-')
-            begin_year = years[0]
-            if int(begin_year[2:4]) < int(years[1]):
-                end_year = int(begin_year[0:2] + years[1])
-            else:
-                end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
-            seasons = []
-            while int(begin_year) < int(end_year):
-                seasons.append(''.join(['"', '-'.join([begin_year,
-                str(int(begin_year)+1)[2:4]]), '"']))
-                begin_year = str(int(begin_year) + 1)
-        elif year_range is not None:
-            seasons = ['"CAREER"']
 
         stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
 
         try:
-            if year_range is None:
+            if seasons is None:
                 if mode.lower() == "both":
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
                         ORDER BY Season''' % ', '.join(stats), (self.id,))
@@ -190,7 +172,37 @@ class Player:
         finally:
             db.close()
 
-        return(temp)
+        return temp
+
+    def get_year_range(year_range):
+        '''Takes in a range of years and returns the years in that range.
+
+        year_range (string) -- Range of years, like '2006-10' or '1998-04'.
+                               Can also be 'Career' for overall stats or None
+                               for all stats.
+        '''
+
+        if (year_range is not None and year_range.upper() != "CAREER" and
+                (len(year_range) != 7 or "-" not in year_range)):
+            raise ValueError("Invalid year range provided: %s" % year_range)
+        if year_range is not None and year_range.upper() != "CAREER":
+            helpers.scrub(year_range)
+            years = year_range.split('-')
+            begin_year = years[0]
+            if int(begin_year[2:4]) < int(years[1]):
+                end_year = int(begin_year[0:2] + years[1])
+            else:
+                end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
+            seasons = []
+            while int(begin_year) < int(end_year):
+                seasons.append(''.join(['"', '-'.join([begin_year,
+                str(int(begin_year)+1)[2:4]]), '"']))
+                begin_year = str(int(begin_year) + 1)
+        elif year_range.upper() == "CAREER":
+            seasons = ['"CAREER"']
+        else:
+            return None
+        return seasons
 
     def get_all_stats(self, mode="both"):
         '''Query database to return list of tuples of all player stats.
