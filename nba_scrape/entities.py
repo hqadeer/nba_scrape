@@ -161,7 +161,7 @@ class Player:
             else:
                 season_hold = ', '.join('?' * len(seasons))
                 if mode.lower() == "both":
-                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=? AND
+                    cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
                                    AND Season IN (%s) ORDER BY PLAYOFFS,
                                    Season''' % (', '.join(stats),
                                    ', '.join(seasons)), (self.id,))
@@ -222,7 +222,7 @@ class Player:
             cursor = db.cursor()
             if mode.lower() == "both":
                 cursor.execute('''SELECT * FROM tradstats WHERE id=? ORDER BY
-                    Season''', (self.id,))
+                    playoffs, Season''', (self.id,))
             elif mode.lower() == "playoffs":
                 cursor.execute('''SELECT * FROM tradstats WHERE id=? AND
                     playoffs = 1 ORDER BY Season''', (self.id,))
