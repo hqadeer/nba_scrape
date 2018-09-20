@@ -139,7 +139,7 @@ class Player:
         if "TSpercent" in stats:
             raise ValueError("Invalid stat for multi-stat queries: TS%")
 
-        seasons = get_year_range(year_range)
+        seasons = self.get_year_range(year_range)
         if len(stats) < 1:
             raise ValueError("Please provide at least one stat.")
 
@@ -178,7 +178,7 @@ class Player:
 
         return temp
 
-    def get_year_range(year_range):
+    def get_year_range(self, year_range):
         '''Takes in a range of years and returns the years in that range.
 
         year_range (string) -- Range of years, like '2006-10' or '1998-04'.
