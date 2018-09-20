@@ -1,6 +1,6 @@
 # nba_scrape
 
-A work-in-progress Python utility to easily scrape professional basketball data off stats.nba.com using Selenium and BeautifulSoup.
+An easy-to-use Python utility to scrape professional basketball data off stats.nba.com using Selenium and BeautifulSoup.
 
 ### Installation:
 
