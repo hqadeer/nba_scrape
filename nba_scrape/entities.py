@@ -77,7 +77,7 @@ class Player:
                     send_mode = "playoffs"
                 points, fga, fta = (self.get_stats(['PTS', 'FGA', 'FTA'], year,
                                     mode=send_mode))[0]
-                value = [points / (2 * fga + 0.44 * fta)]
+                value = [points / (2 * (fga + 0.44 * fta))]
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()

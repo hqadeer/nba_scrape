@@ -77,8 +77,8 @@ class TestEntities(unittest.TestCase):
 
         # Checking TS% queries.
         lebron = league.get_player('lebron james')
-        self.assertTrue(abs(lebron.get_stat('ts%', '2017-18') - .621) < .2)
-        self.assertTrue(abs(lebron.get_stat('ts%', '2013-14') - .649) < .2)
+        self.assertTrue(abs(lebron.get_stat('ts%', '2017-18') - .621) < .01)
+        self.assertTrue(abs(lebron.get_stat('ts%', '2013-14') - .649) < .01)
         self.assertTrue(abs(lebron.get_stat('ts%', '2015-16', playoffs=True)
             - .585) < .2)
 
