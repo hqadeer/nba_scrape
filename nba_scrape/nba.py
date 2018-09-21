@@ -115,7 +115,7 @@ class NBA:
     def load_players(self, players):
         '''Load all specified players to database.
 
-        players (list) -- list of player names (strings) to be loaded
+        players (iterable) -- list of player names (strings) to be loaded
         '''
         for player in players:
             temp = self.get_player(player)
