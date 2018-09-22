@@ -134,11 +134,16 @@ class Player:
         elif mode.lower() != "both":
             raise ValueError("Mode must be 'season', 'playoffs', or 'both'.")
 
+        seasons = self.get_year_range(year_range)
+
         for i, stat in enumerate(stats):
-            if (stat.upper() not in constants.supported_stats or stat.upper()
-                == 'TS%'):
+            if stat.upper() not in constants.supported_stats:
                 raise InvalidStatError("%s not supported for multi-stat "  %
                                        stat + "queries")
+            if stat.upper() == 'TS%':
+                return [pair[:i] + self.get_stat('TS%', season) + pair[i+1:]
+                        for season, pair in zip(seasons, self.get_stats(
+                        stats.remove('TS%'), year_range, mode))]
             stats[i] = ''.join(['"', stat.upper(), '"'])
             if "%" in stats[i]:
                 stats[i] = stats[i].replace("%", "percent")
@@ -146,7 +151,6 @@ class Player:
                 stats[i] = stats[i].replace("3", "three")
             helpers.scrub(stats[i])
 
-        seasons = self.get_year_range(year_range)
         if len(stats) < 1:
             raise ValueError("Please request at least one stat.")
 
