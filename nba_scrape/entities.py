@@ -83,7 +83,7 @@ class Player:
                     send_mode = "season"
                 points, fga, fta = (self.get_stats(['PTS', 'FGA', 'FTA'], year,
                                     mode=send_mode))[0]
-                value = [points / (2 * (fga + 0.44 * fta))]
+                value = [round(points / (2 * (fga + 0.44 * fta)), 3)]
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
@@ -105,7 +105,7 @@ class Player:
             else:
                 temp = {stat: value[0]}
                 store[year] = temp
-            return round(value[0], 3)
+            return value[0]
 
     def get_stats(self, stats, year_range=None, mode="season"):
         '''Return a list of tuples of player stats.
@@ -148,9 +148,9 @@ class Player:
                     )
                 stats.remove(stat)
                 tuples = zip(seasons, self.get_stats(stats, year_range,
-                                 mode))
+                             mode))
                 return [pair[:i] + (self.get_stat('TS%', season,
-                        playoffs=pvalue),) + pair[i+1:] for season, pair in
+                        playoffs=pvalue),) + pair[i:] for season, pair in
                         tuples]
 
         for i, stat in enumerate(stats):
