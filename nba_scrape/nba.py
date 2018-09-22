@@ -1,5 +1,6 @@
 from nba_scrape.helpers import get_players
 from nba_scrape.entities import Player
+from nba_scrape import constants
 import os
 import sys
 import sqlite3
@@ -135,6 +136,14 @@ class NBA:
         for id in list:
             print(id[0])
             temp = Player(id[1])
+
+    def get_valid_stats(self):
+        '''Return a set of stats supported by this module'''
+        return constants.supported_stats
+
+    def get_unsupported_stats(self):
+        '''Return a set of valid stats not supported by this modeule'''
+        return constants.unsupported_stats
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import traceback
 import sqlite3
 from nba_scrape.nba_exceptions import InvalidStatError
 import nba_scrape.helpers as helpers
+import nba_scrape.constants as constants
 
 class Player:
     '''Class representing an NBA player.'''
@@ -60,6 +61,10 @@ class Player:
             store = self.playoffs_stats
             pvalue = 1
         stat = stat.upper()
+        if stat in constants.unsupported_stats:
+            raise InvalidStatError("No support yet for %s queries" % stat)
+        if stat not in constants.supported_stats:
+            raise InvalidStatError("Invalid stat query: %s" % stat)
         year = year.upper()
         helpers.scrub(year)
         if "3" in stat:
@@ -84,12 +89,12 @@ class Player:
                 try:
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=:id
                                    AND PLAYOFFS=:flip AND Season=:year ORDER
-                                   BY GP DESC''' % str(stat), {"id" : self.id,
-                                   "flip" : pvalue, "year" : year})
+                                   BY GP DESC''' % str(stat), {"id": self.id,
+                                   "flip": pvalue, "year": year})
                     value = cursor.fetchone()
                 except sqlite3.OperationalError:
-                    raise InvalidStatError("%s does not exist for player %d"
-                                           % (stat, self.id))
+                    raise sqlite3.OperationalError("An error occurred during "
+                                                   + "database retrieval")
                 finally:
                     db.close()
             if value is None:
@@ -130,6 +135,10 @@ class Player:
             raise ValueError("Mode must be 'season', 'playoffs', or 'both'.")
 
         for i, stat in enumerate(stats):
+            if (stat.upper() not in constants.supported_stats or stat.upper()
+                == 'TS%'):
+                raise InvalidStatError("%s not supported for multi-stat "  %
+                                       stat + "queries")
             stats[i] = ''.join(['"', stat.upper(), '"'])
             if "%" in stats[i]:
                 stats[i] = stats[i].replace("%", "percent")
@@ -137,12 +146,9 @@ class Player:
                 stats[i] = stats[i].replace("3", "three")
             helpers.scrub(stats[i])
 
-        if "TSpercent" in stats:
-            raise ValueError("Invalid stat for multi-stat queries: TS%")
-
         seasons = self.get_year_range(year_range)
         if len(stats) < 1:
-            raise ValueError("Please provide at least one stat.")
+            raise ValueError("Please request at least one stat.")
 
         stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')
@@ -174,8 +180,7 @@ class Player:
             temp = cursor.fetchall()
         except sqlite3.OperationalError as exc:
             traceback.print_exc()
-            raise InvalidStatError("Error occurred during database retrieval."
-                                   + " An invalid stat was likely passed.")
+            raise InvalidStatError("Error occurred during database retrieval.")
         finally:
             db.close()
 
