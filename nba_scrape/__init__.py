@@ -1,7 +1,7 @@
 # Core instance
 from nba_scrape.nba import NBA
 import nba_scrape.helpers as helpers
-import nba_exceptions
+import nba_scrape.nba_exceptions
 
 name = "nba_scrape"
 
