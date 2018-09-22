@@ -140,7 +140,10 @@ class TestEntities(unittest.TestCase):
 
         # Test with some invalid stats
         with self.assertRaises(nba_exceptions.InvalidStatError):
-            butler.get_stats(['pts', 'ts%'], '2015-18')
+            butler.get_stats(['pts', 'OFFRTG'], '2015-18')
+
+        # Test for TS% queries
+        ptsts = [()]
 
     def test_get_year_range(self):
         '''Test the get_year_range method of the Player class in entities.py'''

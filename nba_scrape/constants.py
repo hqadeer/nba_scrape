@@ -1,47 +1,47 @@
 supported_stats = {
-    'TEAM'
-    'AGE'
-    'GP'
-    'GS'
-    'MIN'
-    'PTS'
-    'FGM'
-    'FGA'
-    'FG%'
-    '3PM'
-    '3PA'
-    '3P%'
-    'FTM'
-    'FTA'
-    'FT%'
-    'OREB'
-    'DREB'
-    'REB'
-    'AST'
-    'TOV'
-    'STL'
-    'BLK'
-    'PF'
+    'TEAM',
+    'AGE',
+    'GP',
+    'GS',
+    'MIN',
+    'PTS',
+    'FGM',
+    'FGA',
+    'FG%',
+    '3PM',
+    '3PA',
+    '3P%',
+    'FTM',
+    'FTA',
+    'FT%',
+    'OREB',
+    'DREB',
+    'REB',
+    'AST',
+    'TOV',
+    'STL',
+    'BLK',
+    'PF',
     'TS%'
 }
 
 unsupported_stats = {
-    'FP'
-    'DD2'
-    'TD3'
-    '+/-'
-    'OFFRTG'
-    'DEFRTG'
-    'NETRTG'
-    'AST%'
-    'AST/TO'
-    'AST RATIO'
-    'OREB%'
-    'DREB%'
-    'REB%'
-    'TO RATIO'
-    'EFG%'
-    'USG%'
-    'PACE'
+    'FP',
+    'DD2',
+    'TD3',
+    '+/-',
+    'OFFRTG',
+    'DEFRTG',
+    'NETRTG',
+    'AST%',
+    'AST/TO',
+    'AST RATIO',
+    'OREB%',
+    'DREB%',
+    'REB%',
+    'TO RATIO',
+    'EFG%',
+    'USG%',
+    'PACE',
     'PIE'
 }
