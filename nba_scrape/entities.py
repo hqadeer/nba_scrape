@@ -143,7 +143,7 @@ class Player:
             if stat.upper() == 'TS%':
                 return [pair[:i] + self.get_stat('TS%', season) + pair[i+1:]
                         for season, pair in zip(seasons, self.get_stats(
-                        stats.remove('TS%'), year_range, mode))]
+                        stats.remove(stat), year_range, mode))]
             stats[i] = ''.join(['"', stat.upper(), '"'])
             if "%" in stats[i]:
                 stats[i] = stats[i].replace("%", "percent")
