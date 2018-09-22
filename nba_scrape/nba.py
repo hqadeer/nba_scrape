@@ -142,9 +142,8 @@ class NBA:
         return constants.supported_stats
 
     def get_unsupported_stats(self):
-        '''Return a set of valid stats not supported by this modeule'''
+        '''Return a set of valid stats not supported by this module'''
         return constants.unsupported_stats
-
 
 if __name__ == "__main__":
 

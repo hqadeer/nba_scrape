@@ -118,9 +118,9 @@ class TestEntities(unittest.TestCase):
         all_points = [(2.6,), (8.6,), (13.1,), (20.0,), (20.9,), (23.9,),
                       (22.2,), (16.4,), (0.0,), (13.3,), (13.6,), (22.9,),
                       (22.7,), (15.8,), (16.7,)]
+
         self.assertEqual(butler.get_stats(['pts'], mode='both'),
                          all_points)
-
 
         # Test with some none values
         all_age = [(22,), (23,), (24,), (25,), (26,), (27,), (28,), (None,)]
@@ -139,10 +139,8 @@ class TestEntities(unittest.TestCase):
         self.assertEqual(butler.get_stats(['pts', 'reb'], '2010-13'), ptsrebs)
 
         # Test with some invalid stats
-        unicorn_stats = [(20.9, 'UNICORN'), (23.9, 'UNICORN'), (22.2,
-                          'UNICORN')]
-        self.assertEqual(butler.get_stats(['pts', 'unicorn'], '2015-18'),
-                         unicorn_stats)
+        with self.assertRaises(nba_exceptions.InvalidStatError):
+            butler.get_stats(['pts', 'ts%'], '2015-18')
 
     def test_get_year_range(self):
         '''Test the get_year_range method of the Player class in entities.py'''
