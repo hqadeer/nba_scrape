@@ -1,6 +1,7 @@
 import os
 import traceback
 import sqlite3
+import copy
 from nba_scrape.nba_exceptions import InvalidStatError
 import nba_scrape.helpers as helpers
 import nba_scrape.constants as constants
@@ -54,7 +55,7 @@ class Player:
         playoffs (bool) -- True = playoffs stats, False = season stats
         '''
 
-        if playoffs == False:
+        if not playoffs:
             store = self.season_stats
             pvalue = 0
         else:
@@ -76,10 +77,10 @@ class Player:
         else:
             helpers.scrub(stat)
             if stat == "TSpercent":
-                if playoffs == False:
-                    send_mode = "season"
-                else:
+                if playoffs:
                     send_mode = "playoffs"
+                else:
+                    send_mode = "season"
                 points, fga, fta = (self.get_stats(['PTS', 'FGA', 'FTA'], year,
                                     mode=send_mode))[0]
                 value = [points / (2 * (fga + 0.44 * fta))]
@@ -104,7 +105,7 @@ class Player:
             else:
                 temp = {stat: value[0]}
                 store[year] = temp
-            return value[0]
+            return round(value[0], 3)
 
     def get_stats(self, stats, year_range=None, mode="season"):
         '''Return a list of tuples of player stats.
@@ -125,7 +126,6 @@ class Player:
         Stats are returned in the order specified, from least to most recent
         season specified. "Career" is counted as the most recent season.
         '''
-
         pvalues = []
         if mode.lower() == "season":
             pvalue = 0
@@ -138,18 +138,31 @@ class Player:
 
         for i, stat in enumerate(stats):
             if stat.upper() not in constants.supported_stats:
-                raise InvalidStatError("%s not supported for multi-stat "  %
-                                       stat + "queries")
+                raise InvalidStatError("Invalid stat: %s" % stat)
             if stat.upper() == 'TS%':
-                return [pair[:i] + self.get_stat('TS%', season) + pair[i+1:]
-                        for season, pair in zip(seasons, self.get_stats(
-                        stats.remove(stat), year_range, mode))]
+                if mode == 'both':
+                    old_stats = copy.deepcopy(stats)
+                    return (
+                        self.get_stats(stats, year_range, mode='season') +
+                        self.get_stats(old_stats, year_range, mode='playoffs')
+                    )
+                stats.remove(stat)
+                tuples = zip(seasons, self.get_stats(stats, year_range,
+                                 mode))
+                return [pair[:i] + (self.get_stat('TS%', season,
+                        playoffs=pvalue),) + pair[i+1:] for season, pair in
+                        tuples]
+
+        for i, stat in enumerate(stats):
             stats[i] = ''.join(['"', stat.upper(), '"'])
             if "%" in stats[i]:
                 stats[i] = stats[i].replace("%", "percent")
             if "3" in stats[i]:
                 stats[i] = stats[i].replace("3", "three")
             helpers.scrub(stats[i])
+
+        for i, season in enumerate(seasons):
+            seasons[i] = ''.join(['"', season, '"'])
 
         if len(stats) < 1:
             raise ValueError("Please request at least one stat.")
@@ -212,8 +225,8 @@ class Player:
                 end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
             seasons = []
             while int(begin_year) < int(end_year):
-                seasons.append('"' + '-'.join([begin_year,
-                               str(int(begin_year)+1)[2:4]]) + '"')
+                seasons.append('-'.join([begin_year,
+                               str(int(begin_year)+1)[2:4]]))
                 begin_year = str(int(begin_year) + 1)
         else:
             seasons = ['"CAREER"']
