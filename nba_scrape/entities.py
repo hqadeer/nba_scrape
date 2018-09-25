@@ -166,6 +166,7 @@ class Player:
             for i, season in enumerate(seasons):
                 seasons[i] = ''.join(['"', season, '"'])
 
+        stats.append('Season')
         stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
@@ -199,7 +200,14 @@ class Player:
         finally:
             db.close()
 
-        return temp
+        results = {}
+        for tup in temp:
+            key = tup[-1]
+            if key in results:
+                key += 'P'
+            results[key] = tup[:-1]
+
+        return results
 
     def get_year_range(self, year_range):
         '''Takes in a range of years and returns a list of years in that range.
