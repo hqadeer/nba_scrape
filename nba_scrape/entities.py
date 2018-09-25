@@ -126,6 +126,7 @@ class Player:
         Stats are returned in the order specified, from least to most recent
         season specified. "Career" is counted as the most recent season.
         '''
+        assert len(stats) > 0, "Provide at least one statistic"
         stats = copy.deepcopy(stats)
         pvalues = []
         if mode.lower() == "season":
@@ -161,11 +162,9 @@ class Player:
                 stats[i] = stats[i].replace("3", "three")
             helpers.scrub(stats[i])
 
-        for i, season in enumerate(seasons):
-            seasons[i] = ''.join(['"', season, '"'])
-
-        if len(stats) < 1:
-            raise ValueError("Please request at least one stat.")
+        if seasons is not None:
+            for i, season in enumerate(seasons):
+                seasons[i] = ''.join(['"', season, '"'])
 
         stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')

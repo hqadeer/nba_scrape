@@ -142,7 +142,12 @@ class TestEntities(unittest.TestCase):
             butler.get_stats(['pts', 'OFFRTG'], '2015-18')
 
         # Test for TS% queries
-        #ptsts = [()]
+        pts_ts = [(20.9, 5.3, 0.564, 4.8), (23.9, 6.2, 0.585, 5.5),
+                  (22.2, 5.3, 0.591, 4.9)]
+        self.assertEqual(
+            butler.get_stats(['pts', 'reb', 'ts%', 'ast'], '2015-18'), pts_ts
+        )
+
 
     def test_get_year_range(self):
         '''Test the get_year_range method of the Player class in entities.py'''
@@ -157,7 +162,7 @@ class TestEntities(unittest.TestCase):
                    '1999-00', '2000-01']
         self.assertEqual(kobe.get_year_range('1995-01'), years_b)
         self.assertEqual(kobe.get_year_range(None), None)
-        self.assertEqual(kobe.get_year_range('CArEEr'), ['"CAREER"'])
+        self.assertEqual(kobe.get_year_range('CArEEr'), ['CAREER'])
 
 
 if __name__ == "__main__":
