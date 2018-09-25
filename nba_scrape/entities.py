@@ -140,7 +140,7 @@ class Player:
 
         for i, stat in enumerate(stats):
             if stat.upper() not in constants.SUPPORTED_STATS:
-                raise InvalidStatError("Invalid stat: %s" % stat)
+                raise InvalidStatError("Unsupported stat: %s" % stat)
             if stat.upper() == 'TS%':
                 if mode == 'both':
                     return (
