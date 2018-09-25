@@ -87,8 +87,8 @@ class Player:
                     send_mode = "playoffs"
                 else:
                     send_mode = "season"
-                value = Player.ts_calc(self.get_stats(['PTS', 'FGA', 'FTA'],
-                                       year, mode=send_mode)[0])
+                value = [Player.ts_calc(self.get_stats(['PTS', 'FGA', 'FTA'],
+                                       year, mode=send_mode)[0])]
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
