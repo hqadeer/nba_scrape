@@ -62,9 +62,9 @@ class Player:
             store = self.playoffs_stats
             pvalue = 1
         stat = stat.upper()
-        if stat in constants.unsupported_stats:
+        if stat in constants.UNSUPPORTED_STATS:
             raise InvalidStatError("No support yet for %s queries" % stat)
-        if stat not in constants.supported_stats:
+        if stat not in constants.SUPPORTED_STATS:
             raise InvalidStatError("Invalid stat query: %s" % stat)
         year = year.upper()
         helpers.scrub(year)
@@ -139,7 +139,7 @@ class Player:
         seasons = self.get_year_range(year_range)
 
         for i, stat in enumerate(stats):
-            if stat.upper() not in constants.supported_stats:
+            if stat.upper() not in constants.SUPPORTED_STATS:
                 raise InvalidStatError("Invalid stat: %s" % stat)
             if stat.upper() == 'TS%':
                 if mode == 'both':

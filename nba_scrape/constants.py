@@ -1,4 +1,4 @@
-supported_stats = {
+SUPPORTED_STATS = {
     'TEAM',
     'AGE',
     'GP',
@@ -25,7 +25,7 @@ supported_stats = {
     'TS%'
 }
 
-unsupported_stats = {
+UNSUPPORTED_STATS = {
     'FP',
     'DD2',
     'TD3',

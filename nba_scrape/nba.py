@@ -139,11 +139,11 @@ class NBA:
 
     def get_valid_stats(self):
         '''Return a set of stats supported by this module'''
-        return constants.supported_stats
+        return constants.SUPPORTED_STATS
 
     def get_unsupported_stats(self):
         '''Return a set of valid stats not supported by this module'''
-        return constants.unsupported_stats
+        return constants.UNSUPPORTED_STATS
 
 if __name__ == "__main__":
 
