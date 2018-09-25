@@ -126,6 +126,7 @@ class Player:
         Stats are returned in the order specified, from least to most recent
         season specified. "Career" is counted as the most recent season.
         '''
+        stats = copy.deepcopy(stats)
         pvalues = []
         if mode.lower() == "season":
             pvalue = 0
@@ -141,10 +142,9 @@ class Player:
                 raise InvalidStatError("Invalid stat: %s" % stat)
             if stat.upper() == 'TS%':
                 if mode == 'both':
-                    old_stats = copy.deepcopy(stats)
                     return (
                         self.get_stats(stats, year_range, mode='season') +
-                        self.get_stats(old_stats, year_range, mode='playoffs')
+                        self.get_stats(stats, year_range, mode='playoffs')
                     )
                 stats.remove(stat)
                 tuples = zip(seasons, self.get_stats(stats, year_range,
@@ -170,7 +170,6 @@ class Player:
         stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
-
         try:
             if seasons is None:
                 if mode.lower() == "both":
@@ -197,14 +196,14 @@ class Player:
             temp = cursor.fetchall()
         except sqlite3.OperationalError as exc:
             traceback.print_exc()
-            raise InvalidStatError("Error occurred during database retrieval.")
+            raise exc("Error occurred during database retrieval.")
         finally:
             db.close()
 
         return temp
 
     def get_year_range(self, year_range):
-        '''Takes in a range of years and returns the years in that range.
+        '''Takes in a range of years and returns a list of years in that range.
 
         year_range (string) -- Range of years, like '2006-10' or '1998-04'.
                                Can also be 'Career' for overall stats or None
@@ -212,24 +211,22 @@ class Player:
         '''
         if year_range is None:
             return None
-        if (year_range.upper() != "CAREER" and
-                (len(year_range) != 7 or "-" not in year_range)):
+        if year_range.upper() == 'CAREER':
+            return ['CAREER']
+        if len(year_range) != 7 or "-" not in year_range:
             raise ValueError("Invalid year range provided: %s" % year_range)
-        if year_range.upper() != "CAREER":
-            helpers.scrub(year_range)
-            years = year_range.split('-')
-            begin_year = years[0]
-            if int(begin_year[2:4]) < int(years[1]):
-                end_year = int(begin_year[0:2] + years[1])
-            else:
-                end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
-            seasons = []
-            while int(begin_year) < int(end_year):
-                seasons.append('-'.join([begin_year,
-                               str(int(begin_year)+1)[2:4]]))
-                begin_year = str(int(begin_year) + 1)
+        helpers.scrub(year_range)
+        years = year_range.split('-')
+        begin_year = years[0]
+        if int(begin_year[2:4]) < int(years[1]):
+            end_year = int(begin_year[0:2] + years[1])
         else:
-            seasons = ['"CAREER"']
+            end_year = int(str(int(begin_year[0:2]) + 1) + years[1])
+        seasons = []
+        while int(begin_year) < int(end_year):
+            seasons.append('-'.join([begin_year,
+                           str(int(begin_year)+1)[2:4]]))
+            begin_year = str(int(begin_year) + 1)
         return seasons
 
     def get_all_stats(self, mode="both"):

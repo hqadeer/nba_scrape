@@ -1,5 +1,4 @@
 from nba_scrape import NBA
-from nba_scrape.entities import Player
 from nba_scrape import nba_exceptions
 import unittest
 
@@ -143,7 +142,7 @@ class TestEntities(unittest.TestCase):
             butler.get_stats(['pts', 'OFFRTG'], '2015-18')
 
         # Test for TS% queries
-        ptsts = [()]
+        #ptsts = [()]
 
     def test_get_year_range(self):
         '''Test the get_year_range method of the Player class in entities.py'''
@@ -151,11 +150,11 @@ class TestEntities(unittest.TestCase):
         league = NBA()
         kobe = league.get_player('kobe bryant')
 
-        years_a = ['"2008-09"', '"2009-10"', '"2010-11"']
+        years_a = ['2008-09', '2009-10', '2010-11']
         self.assertEqual(kobe.get_year_range('2008-11'), years_a)
 
-        years_b = ['"1995-96"', '"1996-97"', '"1997-98"', '"1998-99"',
-                   '"1999-00"', '"2000-01"']
+        years_b = ['1995-96', '1996-97', '1997-98', '1998-99',
+                   '1999-00', '2000-01']
         self.assertEqual(kobe.get_year_range('1995-01'), years_b)
         self.assertEqual(kobe.get_year_range(None), None)
         self.assertEqual(kobe.get_year_range('CArEEr'), ['"CAREER"'])
