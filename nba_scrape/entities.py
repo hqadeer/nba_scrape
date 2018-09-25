@@ -151,8 +151,8 @@ class Player:
                 rest = self.get_stats(stats, year_range, mode)
                 ts_precs = self.get_stats(['PTS', 'FGA', 'FTA'],
                                           year_range, mode)
-                return [pair[:i] + (Player.ts_calc(tup),) + pair[i:] for tup,
-                        pair in zip(ts_precs, rest)]
+                return {key : (rest[key][:i] + (Player.ts_calc(ts_precs[key]),)
+                        + rest[key][i:]) for key in rest.keys()}
 
         for i, stat in enumerate(stats):
             stats[i] = ''.join(['"', stat.upper(), '"'])
