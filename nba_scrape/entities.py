@@ -40,6 +40,12 @@ class Player:
         self.season_stats = {}
         self.playoffs_stats = {}
 
+    def ts_calc(tup):
+        try:
+            return round(tup[0] / (2 * (tup[1] + 0.44 * tup[2])), 3)
+        except ZeroDivisionError:
+            return None
+
     def get_stat(self, stat, year='career', playoffs=False):
         '''Return instance player's specified stat for the specified year.
 
@@ -81,9 +87,8 @@ class Player:
                     send_mode = "playoffs"
                 else:
                     send_mode = "season"
-                points, fga, fta = (self.get_stats(['PTS', 'FGA', 'FTA'], year,
-                                    mode=send_mode))[0]
-                value = [round(points / (2 * (fga + 0.44 * fta)), 3)]
+                value = Player.ts_calc(self.get_stats(['PTS', 'FGA', 'FTA'],
+                                       year, mode=send_mode)[0])
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
@@ -142,17 +147,12 @@ class Player:
             if stat.upper() not in constants.SUPPORTED_STATS:
                 raise InvalidStatError("Unsupported stat: %s" % stat)
             if stat.upper() == 'TS%':
-                if mode == 'both':
-                    return (
-                        self.get_stats(stats, year_range, mode='season') +
-                        self.get_stats(stats, year_range, mode='playoffs')
-                    )
                 stats.remove(stat)
-                tuples = zip(seasons, self.get_stats(stats, year_range,
-                             mode))
-                return [pair[:i] + (self.get_stat('TS%', season,
-                        playoffs=pvalue),) + pair[i:] for season, pair in
-                        tuples]
+                rest = self.get_stats(stats, year_range, mode)
+                ts_precs = self.get_stats(['PTS', 'FGA', 'FTA'],
+                                          year_range, mode)
+                return [pair[:i] + (Player.ts_calc(tup),) + pair[i:] for tup,
+                        pair in zip(ts_precs, rest)]
 
         for i, stat in enumerate(stats):
             stats[i] = ''.join(['"', stat.upper(), '"'])
