@@ -79,7 +79,7 @@ class TestEntities(unittest.TestCase):
         self.assertTrue(abs(lebron.get_stat('ts%', '2017-18') - .621) < .01)
         self.assertTrue(abs(lebron.get_stat('ts%', '2013-14') - .649) < .01)
         self.assertTrue(abs(lebron.get_stat('ts%', '2015-16', playoffs=True)
-            - .585) < .2)
+                        - .585) < .2)
 
     def test_get_stats(self):
         '''Test the get_stats method of entities.py
@@ -92,49 +92,60 @@ class TestEntities(unittest.TestCase):
 
         # Test season mode (default)
         butler = league.get_player('jimmy butler')
-        season_stats = [('CHI', 1.4, 0.8), ('CHI', 2.6, 1.5), ('CHI', 3.3, 1.4)]
+        season_stats = {'2012-13': ('CHI', 1.4, 0.8), '2013-14':
+                        ('CHI', 2.6, 1.5), '2014-15': ('CHI', 3.3, 1.4)}
         self.assertEqual(butler.get_stats(['TEAM', 'AST', 'TOV'], '2012-15'),
                          season_stats)
 
         # Test playoffs mode
-        playoff_stats = [(23, 12, 12), (24, 5, 5), (25, 12, 12)]
+        playoff_stats = {'2012-13': (23, 12, 12), '2013-14': (24, 5, 5),
+                         '2014-15': (25, 12, 12)}
         self.assertEqual(butler.get_stats(['age', 'gp', 'gs'], '2012-15',
                          mode='playoffs'), playoff_stats)
 
         # Test season and playoff stats together
 
-        both_stats = [(23, 82, 20), (24, 67, 67), (25, 65, 65)] + playoff_stats
+        both_stats = {'2012-13': (23, 82, 20), '2013-14': (24, 67, 67),
+                      '2014-15': (25, 65, 65), '2012-13P': (23, 12, 12),
+                      '2013-14P': (24, 5, 5), '2014-15P': (25, 12, 12)}
         self.assertEqual(butler.get_stats(['age', 'gp', 'gs'], '2012-15',
                          mode='both'), both_stats)
 
         # Test with seasons parameter as 'career'
-        career_stats = [(0.5, 1.5, 1.4)]
+        career_stats = {'CAREER': (0.5, 1.5, 1.4)}
         self.assertEqual(butler.get_stats(['blk', 'tov', 'pf'], 'cAREEr'),
                          career_stats)
 
         # Test with no seasons parameter
 
-        all_points = [(2.6,), (8.6,), (13.1,), (20.0,), (20.9,), (23.9,),
-                      (22.2,), (16.4,), (0.0,), (13.3,), (13.6,), (22.9,),
-                      (22.7,), (15.8,), (16.7,)]
+        all_points = {'2011-12': (2.6,), '2012-13': (8.6,), '2013-14': (13.1,),
+                      '2014-15': (20.0,), '2015-16': (20.9,),
+                      '2016-17': (23.9,), '2017-18': (22.2,), 'CAREER':
+                      (16.4,), '2011-12P': (0.0,), '2012-13P': (13.3,),
+                      '2013-14P': (13.6,), '2014-15P': (22.9,), '2016-17P':
+                      (22.7,), '2017-18P': (15.8,), 'CAREERP': (16.7,)}
 
         self.assertEqual(butler.get_stats(['pts'], mode='both'),
                          all_points)
 
         # Test with some none values
-        all_age = [(22,), (23,), (24,), (25,), (26,), (27,), (28,), (None,)]
+        all_age = {'2011-12': (22,), '2012-13': (23,), '2013-14': (24,),
+                      '2014-15': (25,), '2015-16': (26,),
+                      '2016-17': (27,), '2017-18': (28,), 'CAREER':
+                      (None,)}
         self.assertEqual(butler.get_stats(['age']), all_age)
 
         kareem = league.get_player('kareem abdul-jabbar')
-        rebounds = [(None, None), (None, None), (3.5, 11.0), (3.0, 11.0)]
+        rebounds = {'1971-72': (None, None), '1972-73': (None, None),
+                    '1973-74': (3.5, 11.0), '1974-75': (3.0, 11.0)}
         self.assertEqual(kareem.get_stats(['oreb', 'dreb'], '1971-75'),
                          rebounds)
 
         # Test with all invalid seasons
-        self.assertEqual(butler.get_stats(['pts', 'reb'], '2000-05'), [])
+        self.assertEqual(butler.get_stats(['pts', 'reb'], '2000-05'), {})
 
         # Test with some invalid seasons
-        ptsrebs = [(2.6, 1.3), (8.6, 4.0)]
+        ptsrebs = {'2011-12': (2.6, 1.3), '2012-13': (8.6, 4.0)}
         self.assertEqual(butler.get_stats(['pts', 'reb'], '2010-13'), ptsrebs)
 
         # Test with some invalid stats
@@ -142,8 +153,10 @@ class TestEntities(unittest.TestCase):
             butler.get_stats(['pts', 'OFFRTG'], '2015-18')
 
         # Test for TS% queries
-        pts_ts = [(20.9, 5.3, 0.564, 4.8), (23.9, 6.2, 0.585, 5.5),
-                  (22.2, 5.3, 0.591, 4.9)]
+        pts_ts = {'2015-16': (20.9, 5.3, 0.564, 4.8), '2016-17':
+                  (23.9, 6.2, 0.585, 5.5), '2017-18':
+                  (22.2, 5.3, 0.591, 4.9)}
+
         self.assertEqual(
             butler.get_stats(['pts', 'reb', 'ts%', 'ast'], '2015-18'), pts_ts
         )

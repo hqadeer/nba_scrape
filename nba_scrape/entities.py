@@ -22,7 +22,7 @@ class Player:
 
         try:
             value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
-                ID=?''', (self.id,)).fetchone()[0]
+                                   ID=?''', (self.id,)).fetchone()[0]
         except (sqlite3.OperationalError, IndexError) as exc:
             value = 0
 
@@ -88,7 +88,7 @@ class Player:
                 else:
                     send_mode = "season"
                 value = [Player.ts_calc(self.get_stats(['PTS', 'FGA', 'FTA'],
-                                       year, mode=send_mode)[0])]
+                                       year, mode=send_mode)[year])]
             else:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
