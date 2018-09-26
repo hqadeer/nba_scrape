@@ -2,7 +2,7 @@
 
 An easy-to-use Python utility to scrape professional basketball data off stats.nba.com using Selenium and BeautifulSoup.
 
-### Installation:
+## Installation:
 
 `pip install nba_scrape`
 
@@ -46,7 +46,7 @@ OR
 
 (Possible modes are 'season', 'playoffs', or 'both'; 'season' is the default.)
 
-### Current functionality:
+## Current functionality:
 
 1) Compile a list of all NBA players and their IDs when initializing the NBA class.
 
