@@ -113,7 +113,7 @@ class Player:
             return value[0]
 
     def get_stats(self, stats, year_range=None, mode="season"):
-        '''Return a list of tuples of player stats.
+        '''Return a dict of tuples of player stats.
         More efficient than repeatedly calling get_stat
 
         Can return a range of stats over a range of seasons.
@@ -129,7 +129,7 @@ class Player:
         mode (str) -- must be 'season', 'playoffs', or 'both'.
 
         Stats are returned in the order specified, from least to most recent
-        season specified. "Career" is counted as the most recent season.
+        season specified.
         '''
         assert len(stats) > 0, "Provide at least one statistic"
         stats = copy.deepcopy(stats)
