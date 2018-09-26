@@ -22,7 +22,7 @@ An easy-to-use Python utility to scrape professional basketball data off stats.n
 
 `>>> lebron.get_stats(['pts', 'reb', 'ast', 'ts%'], '2015-18', mode='playoffs')`
 
-`>>> {'2015-16': (26.3, 9.5, 7.6, 0.585), '2016-17': (32.8, 9.1, 7.8, 0.649), '2017-18': (34, 9.1, 9, 0.619)`
+`>>> {'2015-16': (26.3, 9.5, 7.6, 0.585), '2016-17': (32.8, 9.1, 7.8, 0.649), '2017-18': (34, 9.1, 9, 0.619)}`
 
 #### Get an instance of the NBA class:
 
