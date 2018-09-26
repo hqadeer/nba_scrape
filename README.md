@@ -6,6 +6,32 @@ An easy-to-use Python utility to scrape professional basketball data off stats.n
 
 `pip install nba_scrape`
 
+## Usage:
+
+`from nba_scrape import NBA`
+
+#### Get an instance of the NBA class:
+
+`league = NBA()`
+
+#### Get a player:
+
+`player = league.get_player(player_name)`
+
+OR
+
+`player = league.get_player_by_id(id_number)`
+
+#### Get a single stat:
+
+`player.get_stat(stat_name, season)`
+
+#### Get multiple stats (formatted as a dict with tuples as items):
+
+`player.get_stats([stat1, stat2, stat3], season_range, mode=mode)`
+
+(Possible modes are 'season', 'playoffs', or 'both'; 'season' is the default.)
+
 ### Current functionality:
 
 1) Compile a list of all NBA players and their IDs when initializing the NBA class.
