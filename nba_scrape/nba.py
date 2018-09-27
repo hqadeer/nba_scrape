@@ -119,6 +119,7 @@ class NBA:
         players (iterable) -- list of player names (strings) to be loaded
         '''
         for player in players:
+            print(player)
             temp = self.get_player(player)
 
     def load_all_players(self):
