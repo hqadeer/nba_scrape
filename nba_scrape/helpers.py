@@ -174,13 +174,17 @@ def get_player_trad(link, mode="both"):
                 return returns
             soup = BeautifulSoup(htmls[1].get_attribute('innerHTML'),
                                  features='lxml')
-            if (soup.find_all("div", class_="nba-stat-table__caption")[0]
-                    .span.string) == "Career Playoffs Stats":
-                if mode.lower() == "playoffs":
-                    return soup.table
-                else:
-                    returns[1] = soup.table
-
+            try:
+                if (soup.find_all("div", class_="nba-stat-table__caption")[0]
+                        .span.string) == "Career Playoffs Stats":
+                    if mode.lower() == "playoffs":
+                        return soup.table
+                    else:
+                        returns[1] = soup.table
+            except IndexError:
+                print(soup.prettify())
+                traceback.print_exc()
+                return returns
             if mode.lower() == "both":
                 soup = BeautifulSoup(htmls[0].get_attribute('innerHTML'),
                                      features='lxml')
