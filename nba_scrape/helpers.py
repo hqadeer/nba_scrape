@@ -65,7 +65,7 @@ def detect_browser():
 
     try:
         driver = webdriver.Safari()
-    except (selexc.WebDriverException, FileNotFoundError) as exc:
+    except Exception as exc:
         pass
     except selexc.SessionNotCreatedException:
         driver.quit()
@@ -81,7 +81,7 @@ def detect_browser():
         return
 
     raise InvalidBrowserError('''No supported browsers found. Install Chrome or
-        Firefox for optimal usage.''')
+        Firefox (headless versions) for optimal usage.''')
 
 def get_players(link):
     ''' Return BeautifulSoup page of stats.nba.com's list of players.
