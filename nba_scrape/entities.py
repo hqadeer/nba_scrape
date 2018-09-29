@@ -148,11 +148,14 @@ class Player:
                 raise InvalidStatError("Unsupported stat: %s" % stat)
             if stat.upper() == 'TS%':
                 stats.remove(stat)
-                rest = self.get_stats(stats, year_range, mode)
                 ts_precs = self.get_stats(['PTS', 'FGA', 'FTA'],
                                           year_range, mode)
-                return {key : (rest[key][:i] + (Player.ts_calc(ts_precs[key]),)
-                        + rest[key][i:]) for key in rest.keys()}
+                if len(stats) > 0:
+                    rest = self.get_stats(stats, year_range, mode)
+                else:
+                    rest = {key: [] for key in ts_precs.keys()}
+                return {key: (rest[key][:i] + (Player.ts_calc(ts_precs[key]),)
+                        + rest[key][i:]) for key in ts_precs.keys()}
 
         for i, stat in enumerate(stats):
             stats[i] = ''.join(['"', stat.upper(), '"'])
