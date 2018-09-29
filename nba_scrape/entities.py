@@ -153,7 +153,7 @@ class Player:
                 if len(stats) > 0:
                     rest = self.get_stats(stats, year_range, mode)
                 else:
-                    rest = {key: [] for key in ts_precs.keys()}
+                    rest = {key: () for key in ts_precs.keys()}
                 return {key: (rest[key][:i] + (Player.ts_calc(ts_precs[key]),)
                         + rest[key][i:]) for key in ts_precs.keys()}
 
