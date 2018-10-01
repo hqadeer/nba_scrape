@@ -23,7 +23,7 @@ class Player:
         try:
             value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
                                    ID=?''', (self.id,)).fetchone()[0]
-        except (sqlite3.OperationalError, IndexError) as exc:
+        except (sqlite3.OperationalError, IndexError):
             value = 0
 
         db.close()
@@ -40,6 +40,7 @@ class Player:
         self.season_stats = {}
         self.playoffs_stats = {}
 
+    @staticmethod
     def ts_calc(tup):
         try:
             return round(tup[0] / (2 * (tup[1] + 0.44 * tup[2])), 3)
@@ -87,7 +88,7 @@ class Player:
                     send_mode = "playoffs"
                 else:
                     send_mode = "season"
-                value = [Player.ts_calc(self.get_stats(['PTS', 'FGA', 'FTA'],
+                value = [self.ts_calc(self.get_stats(['PTS', 'FGA', 'FTA'],
                                        year, mode=send_mode)[year])]
             else:
                 db = sqlite3.connect('data.db')
@@ -133,7 +134,6 @@ class Player:
         '''
         assert len(stats) > 0, "Provide at least one statistic"
         stats = copy.deepcopy(stats)
-        pvalues = []
         if mode.lower() == "season":
             pvalue = 0
         elif mode.lower() == "playoffs":
@@ -154,7 +154,7 @@ class Player:
                     rest = self.get_stats(stats, year_range, mode)
                 else:
                     rest = {key: () for key in ts_precs.keys()}
-                return {key: (rest[key][:i] + (Player.ts_calc(ts_precs[key]),)
+                return {key: (rest[key][:i] + (self.ts_calc(ts_precs[key]),)
                         + rest[key][i:]) for key in ts_precs.keys()}
 
         for i, stat in enumerate(stats):
@@ -170,7 +170,6 @@ class Player:
                 seasons[i] = ''.join(['"', season, '"'])
 
         stats.append('Season')
-        stat_hold = ', '.join('?' * len(stats))
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
         try:
@@ -184,7 +183,6 @@ class Player:
                                    AND PLAYOFFS=? ORDER BY Season''' %
                                    ', '.join(stats), (self.id, pvalue))
             else:
-                season_hold = ', '.join('?' * len(seasons))
                 if mode.lower() == "both":
                     cursor.execute('''SELECT %s FROM tradstats WHERE ID=?
                                    AND Season IN (%s) ORDER BY PLAYOFFS,

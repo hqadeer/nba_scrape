@@ -24,7 +24,7 @@ def detect_browser():
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
         driver = webdriver.Chrome()
-    except (selexc.WebDriverException, FileNotFoundError) as exc:
+    except (selexc.WebDriverException, FileNotFoundError):
         pass
     else:
         driver.quit()
@@ -34,7 +34,7 @@ def detect_browser():
         options = webdriver.FirefoxOptions()
         options.add_argument('headless')
         driver = webdriver.Firefox()
-    except (selexc.WebDriverException, FileNotFoundError) as exc:
+    except (selexc.WebDriverException, FileNotFoundError):
         pass
     else:
         browser = "firefox"
@@ -43,7 +43,7 @@ def detect_browser():
 
     try:
         driver = webdriver.PhantomJS()
-    except (selexc.WebDriverException, FileNotFoundError) as exc:
+    except (selexc.WebDriverException, FileNotFoundError):
         pass
     else:
         browser = "PhantomJS"
@@ -54,7 +54,7 @@ def detect_browser():
 
     try:
         driver = webdriver.Opera()
-    except (selexc.WebDriverException, FileNotFoundError) as exc:
+    except (selexc.WebDriverException, FileNotFoundError):
         pass
     else:
         browser = "opera"
@@ -65,14 +65,14 @@ def detect_browser():
 
     try:
         driver = webdriver.Safari()
-    except Exception as exc:
-        pass
     except selexc.SessionNotCreatedException:
         driver.quit()
         print("To use Safari for scraping, enable 'Allow Remote",
               "Automation' option in Safari's Develop menu. Safari does not",
               "support headless mode, so consider installing Chrome or Firefox",
               file=sys.stderr)
+    except Exception:
+        pass
     else:
         driver.quit()
         browser = "safari"
