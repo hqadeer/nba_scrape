@@ -86,11 +86,11 @@ class NBA:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
                 cursor.execute('''SELECT * FROM players WHERE name = ?''',
-                              (''.join(['"', name, '"']),))
+                              (name,))
                 pair = cursor.fetchone()
             finally:
                 db.close()
-            if pair is None:
+            if not pair:
                 raise AttributeError("No player with name: %s" % name)
             self.players[pair[0]] = pair[1]
             id_number = pair[1]
