@@ -85,8 +85,8 @@ class NBA:
             try:
                 db = sqlite3.connect('data.db')
                 cursor = db.cursor()
-                cursor.execute('''SELECT * FROM players WHERE name = %s'''
-                    % ''.join(['"', name, '"']))
+                cursor.execute('''SELECT * FROM players WHERE name = ?''',
+                              (''.join(['"', name, '"']),))
                 pair = cursor.fetchone()
             finally:
                 db.close()
@@ -94,8 +94,7 @@ class NBA:
                 raise AttributeError("No player with name: %s" % name)
             self.players[pair[0]] = pair[1]
             id_number = pair[1]
-        new_player = Player(id_number)
-        return new_player
+        return Player(id_number)
 
     def get_player_by_id(self, id):
         '''Returns a player object based on the given ID.
