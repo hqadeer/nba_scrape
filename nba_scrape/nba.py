@@ -69,7 +69,7 @@ class NBA:
 
         return ids
 
-    def get_player(self, name):
+    def get_player(self, name, update=False):
         '''Returns a Player object based on the given name.
 
         If the player is not found in the database's list of players, an
@@ -94,9 +94,9 @@ class NBA:
                 raise AttributeError("No player with name: %s" % name)
             self.players[pair[0]] = pair[1]
             id_number = pair[1]
-        return Player(id_number)
+        return Player(id_number, update)
 
-    def get_player_by_id(self, id):
+    def get_player_by_id(self, id, update=False):
         '''Returns a player object based on the given ID.
 
         Raises an AttributeError if the provided ID does not correspond to a
@@ -110,7 +110,7 @@ class NBA:
         cursor.execute('''SELECT * FROM players WHERE id = ?''', (int(id),))
         if cursor.fetchone() is None:
             raise AttributeError("No player with id: %s" % str(id))
-        return Player(id)
+        return Player(id, update)
 
     def load_players(self, players):
         '''Load all specified players to database.
@@ -119,7 +119,7 @@ class NBA:
         '''
         for player in players:
             print(player)
-            temp = self.get_player(player)
+            temp = self.get_player(player, True)
 
     def load_all_players(self):
         '''Loads all NBA players to local database.
@@ -135,7 +135,7 @@ class NBA:
         db.close()
         for id in list:
             print(id[0])
-            temp = Player(id[1])
+            temp = Player(id[1], True)
 
     def get_valid_stats(self):
         '''Return a set of stats supported by this module'''
