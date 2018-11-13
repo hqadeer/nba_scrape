@@ -10,7 +10,7 @@ class Player:
     '''Class representing an NBA player.'''
 
 
-    def __init__(self, id):
+    def __init__(self, id, update=False):
         ''' Build player table if it doesn't already exist
 
             id (int) -- player ID number
@@ -20,6 +20,8 @@ class Player:
         db = sqlite3.connect('data.db')
         cursor = db.cursor()
 
+        if update:
+            cursor.execute('delete from tradstats where ID=?', (self.id,))
         try:
             value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
                                    ID=?''', (self.id,)).fetchone()[0]
