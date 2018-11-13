@@ -22,6 +22,7 @@ class Player:
 
         if update:
             cursor.execute('delete from tradstats where ID=?', (self.id,))
+            db.commit()
         try:
             value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
                                    ID=?''', (self.id,)).fetchone()[0]
