@@ -21,8 +21,14 @@ class Player:
         cursor = db.cursor()
 
         if update:
-            cursor.execute('delete from tradstats where ID=?', (self.id,))
-            db.commit()
+            try:
+                cursor.execute('delete from tradstats where ID=?', (self.id,))
+                db.commit()
+            except sqlite3.OperationalError as e:
+                if 'no such table' in str(e):
+                    pass
+                else:
+                    traceback.print_exc()
         try:
             value = cursor.execute('''SELECT count(*) FROM tradstats WHERE
                                    ID=?''', (self.id,)).fetchone()[0]
